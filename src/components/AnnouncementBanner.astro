@@ -1,0 +1,186 @@
+---
+/**
+ * Site-wide announcement banner.
+ *
+ * Two responsive layouts:
+ *   - Mobile  (<640px): a continuously scrolling marquee (aria-hidden).
+ *   - Desktop (≥640px): a static, centered row.
+ *
+ * Honors prefers-reduced-motion (marquee stops animating).
+ * Accessible: the visible marquee is aria-hidden; an sr-only copy of the
+ * message + CTA is exposed to assistive tech via role="region".
+ *
+ * Palette: dark red (#7a1c1c) background, warm gold (#ffd9a0) text/CTA.
+ */
+interface Props {
+  text: string;
+  ctaText?: string;
+  ctaHref?: string;
+}
+
+const { text, ctaText, ctaHref } = Astro.props;
+const hasCta = Boolean(ctaText && ctaHref);
+---
+
+<div class="ann-banner" role="region" aria-label="Site announcement">
+  <!-- Accessible, non-visual copy of the announcement -->
+  <p class="sr-only">
+    {text}
+    {hasCta && (
+      <a href={ctaHref}>{ctaText}</a>
+    )}
+  </p>
+
+  <!-- Mobile: scrolling marquee (decorative; hidden from AT) -->
+  <div class="ann-marquee" aria-hidden="true">
+    <div class="ann-marquee__track">
+      {Array.from({ length: 2 }).map(() => (
+        <span class="ann-marquee__item">
+          <span class="ann-marquee__text">{text}</span>
+          {hasCta && (
+            <a class="ann-marquee__cta" href={ctaHref} tabindex="-1">
+              {ctaText}
+              <span class="ann-arrow" aria-hidden="true">→</span>
+            </a>
+          )}
+          <span class="ann-marquee__sep" aria-hidden="true">✦</span>
+        </span>
+      ))}
+    </div>
+  </div>
+
+  <!-- Desktop: static centered row -->
+  <div class="ann-static" aria-hidden="true">
+    <span class="ann-static__text">{text}</span>
+    {hasCta && (
+      <a class="ann-static__cta" href={ctaHref}>
+        {ctaText}
+        <span class="ann-arrow" aria-hidden="true">→</span>
+      </a>
+    )}
+  </div>
+</div>
+
+<style>
+  /* MTG skin: gold-on-dark (was reroll maroon-on-gold) */
+  .ann-banner {
+    position: relative;
+    width: 100%;
+    background-color: #14110b;
+    color: var(--color-mtg-gold, #c9a84c);
+    border-bottom: 1px solid rgba(201, 168, 76, 0.3);
+    overflow: hidden;
+    font-family: var(--font-sans-ui), sans-serif;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ── Shared text / CTA styling ──────────────────────────────── */
+  .ann-marquee__text,
+  .ann-static__text {
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .ann-marquee__cta,
+  .ann-static__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #ffefd6;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    transition: color 0.2s ease;
+  }
+
+  .ann-marquee__cta:hover,
+  .ann-static__cta:hover {
+    color: #ffffff;
+  }
+
+  .ann-arrow {
+    display: inline-block;
+    transition: transform 0.2s ease;
+  }
+
+  .ann-marquee__cta:hover .ann-arrow,
+  .ann-static__cta:hover .ann-arrow {
+    transform: translateX(3px);
+  }
+
+  /* ── Mobile marquee ─────────────────────────────────────────── */
+  .ann-marquee {
+    display: flex;
+    width: 100%;
+    padding-block: 0.55rem;
+  }
+
+  .ann-marquee__track {
+    display: flex;
+    flex-shrink: 0;
+    white-space: nowrap;
+    will-change: transform;
+    animation: ann-scroll 18s linear infinite;
+  }
+
+  .ann-marquee__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding-inline: 0.75rem;
+  }
+
+  .ann-marquee__sep {
+    color: rgba(255, 217, 160, 0.5);
+    font-size: 0.7rem;
+  }
+
+  @keyframes ann-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ── Desktop static row ─────────────────────────────────────── */
+  .ann-static {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding-block: 0.55rem;
+    padding-inline: 1rem;
+    text-align: center;
+  }
+
+  /* ── Responsive switch ──────────────────────────────────────── */
+  @media (min-width: 640px) {
+    .ann-marquee { display: none; }
+    .ann-static  { display: flex; }
+  }
+
+  /* ── Reduced motion ─────────────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .ann-marquee__track {
+      animation: none;
+    }
+    .ann-arrow {
+      transition: none;
+    }
+  }
+</style>

@@ -1,0 +1,401 @@
+@import "tailwindcss";
+
+@theme {
+  /* ─── reroll base tokens (KEEP — inherited components + the mana-bar seam) ─── */
+  --color-brand-red: #c72d07;
+  --color-brand-red-dark: #8c1e04;
+  --color-brand-red-light: #e54b25;
+  --color-brand-red-pale: #fdf2f0;
+
+  --font-serif-title: "Cinzel", serif;
+  --font-serif-body: "EB Garamond", serif;
+  --font-sans-ui: "Plus Jakarta Sans", sans-serif;
+
+  --color-bg-paper: #FAF6F0;
+  --color-bg-paper-dark: #FAF8F5;
+  --color-text-ink: #1E1610;
+  --color-text-ink-muted: #5C5249;
+
+  /* ─── MTG identity (added) ─────────────────────────────────────────────── */
+  --color-mtg-gold:       #c9a84c;  /* signature accent: borders, type lines, buttons, titles */
+  --color-mtg-gold-dark:  #8a6e2f;  /* hover / shadow */
+  --color-mtg-gold-light: #e6cf86;  /* sheen highlight on bevels */
+
+  /* ─── MTG card RED identity (the card reskin — anchored on brand-red) ─────── */
+  --color-mtg-red:        #c72d07;  /* = brand-red, the seam: frame body, accents */
+  --color-mtg-red-light:  #e7593a;  /* bevel sheen / highlight */
+  --color-mtg-red-dark:   #7a1804;  /* frame shadow / lower edge */
+  --color-mtg-red-deep:   #4d0f02;  /* darkest tail + inner shadow */
+  --color-mtg-red-ember:  #ff9d6b;  /* title glow core */
+
+  --color-bg-dark:        #1e1610;  /* page backdrop — warm tabletop wood */
+  --color-card-face:      #1c160e;  /* dark parchment card face = reroll #FAF6F0 in shadow */
+  --color-text-parchment: #e8dcc8;  /* body text on dark */
+  --color-text-parchment-muted: #9c8f78; /* captions / muted on dark */
+
+  /* mana colors — hero bar + type identity. RED REUSES reroll's brand-red (the seam). */
+  --color-mana-white: #f3ecd8;
+  --color-mana-blue:  #2a6db0;
+  --color-mana-black: #15110c;
+  --color-mana-red:   #c72d07;   /* === reroll brand-red === (unification seam, NOT a dup) */
+  --color-mana-green: #2f7d4f;
+
+  /* social brand colors — baked into card-frame gradients (§7) */
+  --color-social-reroll:    #c79a3a;  /* amber */
+  --color-social-discord:   #5865f2;  /* blurple */
+  --color-social-instagram: #d6336c;  /* pink/red */
+  --color-social-underline: #7c4dff;  /* purple */
+  --color-social-whatsapp:  #25d366;  /* green */
+
+  /* the playmat the cards rest on — light parchment above the bg-dark void */
+  --color-table:      #faf6f0;  /* light parchment */
+  --color-table-edge: #d8cdbb;  /* parchment rim/bevel */
+}
+
+/* ─── Base: warm tabletop page with the two mana glows ────────────────────── */
+html, body {
+  background-color: var(--color-bg-dark);
+  /* warm gold top-left + a soft cool accent bottom-right (the mana split) */
+  background-image:
+    radial-gradient(60rem 50rem at 0% 0%, rgba(199, 45, 7, 0.12), transparent 62%),
+    radial-gradient(60rem 50rem at 100% 100%, rgba(73, 61, 139, 0.10), transparent 62%);
+  background-attachment: fixed;
+  color: var(--color-text-parchment);
+  font-family: var(--font-serif-body);
+  font-size: 18px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Parchment surface — now fills the whole page (the rulebook page itself) ─ */
+.table-surface {
+  position: relative;
+  background-color: var(--color-table);
+  /* subtle parchment grain (echoes reroll's .bg-parchment-texture) */
+  background-image:
+    radial-gradient(rgba(199, 45, 7, 0.02) 1px, transparent 1px),
+    radial-gradient(rgba(30, 22, 16, 0.03) 1px, transparent 1px);
+  background-size: 32px 32px, 32px 32px;
+  background-position: 0 0, 16px 16px;
+}
+/* Inset rulebook frame — thick reroll red, set in from the page edge */
+.table-surface::after {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border: 3px solid rgba(199, 45, 7, 0.7);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* ─── Mana-color bar (the "you've crossed planes" signal) ─────────────────── */
+.mana-bar {
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--color-mana-white) 0% 20%,
+    var(--color-mana-blue)  20% 40%,
+    var(--color-mana-black) 40% 60%,
+    var(--color-mana-red)   60% 80%,
+    var(--color-mana-green) 80% 100%
+  );
+}
+
+/* ─── Shared lift base (KEEP the easing — the motion bridge) ──────────────── */
+.card-lift-shadow {
+  box-shadow: 2px 2px 0px rgba(30, 22, 16, 0.15);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.card-lift-shadow:hover {
+  transform: translateY(-4px) translateZ(0);
+  box-shadow: 6px 8px 0px rgba(199, 45, 7, 0.15);
+}
+
+/* ─── MTG card: real-frame construction ───────────────────────────────────────
+   Layering, outermost → in (mirrors a physical card):
+     .mtg-card         → black card-stock border (the outer black edge)
+     .mtg-card__frame  → the colored type-gradient frame skeleton
+     .mtg-card__plate  → each embossed region (title / type / text) sitting ON
+                         the frame, with gaps so the frame color shows between
+     .mtg-card__art    → the framed art window
+   The frame gradient shows through the padding gaps between plates — that's
+   the "outline on title, art, and text" the real card has. */
+.mtg-card {
+  --frame-gap: 5px;                  /* how much frame color shows between plates */
+  position: relative;
+  display: flex;                     /* fill the (stretched) grid cell height */
+  flex-direction: column;
+  width: 100%;
+  border-radius: 14px;
+  padding: 4px;                      /* the BLACK card-stock border thickness */
+  background: #0b0705;               /* black outer border */
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.08) inset,
+    0 10px 24px rgba(0, 0, 0, 0.55),
+    0 2px 6px rgba(0, 0, 0, 0.5);
+  /* halo glow eases in on hover (no lift/rotate) */
+  transition: box-shadow 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+/* Gold halo — a soft glow radiating from the card edge, layered tight→wide */
+.mtg-card:hover {
+  box-shadow:
+    0 0 0 1px rgba(230, 207, 134, 0.55),         /* crisp gold rim */
+    0 0 14px rgba(201, 168, 76, 0.55),           /* inner halo */
+    0 0 34px rgba(201, 168, 76, 0.40),           /* mid halo */
+    0 0 60px rgba(230, 207, 134, 0.28),          /* outer bloom */
+    0 1px 0 rgba(255, 255, 255, 0.12) inset,
+    0 10px 24px rgba(0, 0, 0, 0.55),
+    0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* The colored frame skeleton. Padding here = the frame border around the whole
+   plate stack; the flex gap = the frame color BETWEEN plates. */
+.mtg-card__frame {
+  flex: 1;                           /* fill the card so all cards match height */
+  border-radius: 10px;
+  padding: var(--frame-gap);
+  display: flex;
+  flex-direction: column;
+  gap: var(--frame-gap);
+  /* type gradient set per-card via --card-grad (defaults to show: red frame) */
+  background: var(--card-grad, linear-gradient(150deg, var(--color-mtg-red-light), var(--color-mtg-red) 48%, var(--color-mtg-red-dark) 82%, var(--color-mtg-red-deep)));
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.5) inset,
+    0 1px 1px rgba(255, 255, 255, 0.25) inset;
+}
+
+/* Collector line — tiny light text on the black card edge, mimicking a real
+   card's ™ & © Wizards copyright/collector strip. Last child of .mtg-card so it
+   rests on the bottom black border, below the frame. */
+.mtg-card__collector {
+  display: block;
+  padding: 4px 10px 2px;
+  text-align: right;
+  font-family: var(--font-sans-ui);
+  font-size: 0.52rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(232, 220, 200, 0.5);          /* faint parchment, like print on black */
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+  transition: color 0.2s ease;
+}
+.mtg-card__collector:hover {
+  color: var(--color-mtg-red-ember);
+}
+
+/* A plate = one embossed dark region resting on the frame. The thin light-top /
+   dark-bottom inset is the bevel that makes it sit proud of the frame. */
+.mtg-card__plate {
+  position: relative;
+  border-radius: 5px;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(199, 45, 7, 0.10), transparent 60%),
+    var(--color-card-face);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.55),
+    0 1px 1px rgba(255, 255, 255, 0.16) inset,
+    0 -1px 1px rgba(0, 0, 0, 0.4) inset;
+}
+
+/* Title plate — subtle red sheen line across the top */
+.mtg-card__titlebar::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  border-radius: 5px 5px 0 0;
+  background: linear-gradient(90deg, transparent, var(--color-mtg-red-light), transparent);
+  opacity: 0.8;
+}
+
+/* ─── Mana pips — authentic WUBRG mana symbols: a pale colored disc with a
+       dark glyph inside (sun/droplet/skull/flame/tree), as Wizards prints them. */
+.mana-pips {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.mana-pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.85), transparent 55%),
+    var(--disc, #ddd);
+  /* the embossed bead edge of a real mana symbol */
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.5),
+    0 1px 1.5px rgba(0, 0, 0, 0.45),
+    inset 0 -1.5px 1.5px rgba(0, 0, 0, 0.28);
+}
+.mana-pip svg {
+  width: 68%;
+  height: 68%;
+  display: block;
+  filter: drop-shadow(0 0.5px 0 rgba(255, 255, 255, 0.35));
+}
+/* gentle staggered bob so the cluster catches the eye on the featured card */
+.mana-pips--pulse .mana-pip {
+  animation: mana-pip-pulse 2.8s ease-in-out infinite;
+}
+.mana-pips--pulse .mana-pip:nth-child(2) { animation-delay: 0.18s; }
+.mana-pips--pulse .mana-pip:nth-child(3) { animation-delay: 0.36s; }
+.mana-pips--pulse .mana-pip:nth-child(4) { animation-delay: 0.54s; }
+.mana-pips--pulse .mana-pip:nth-child(5) { animation-delay: 0.72s; }
+@keyframes mana-pip-pulse {
+  0%, 70%, 100% { transform: translateY(0) scale(1); }
+  35% { transform: translateY(-1.5px) scale(1.1); }
+}
+
+/* Art window — its own framed plate */
+.mtg-card__art {
+  position: relative;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(0, 0, 0, 0.6) inset,
+    0 1px 2px rgba(255, 255, 255, 0.18) inset;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(231, 89, 58, 0.14), transparent 70%),
+    #140a07;
+}
+.mtg-card__art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Logo variant — a transparent dark-lineart logo (e.g. ReRoll) needs a light
+   parchment backdrop and `contain` so the whole mark shows without cropping. */
+.mtg-card__art--logo {
+  background:
+    radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.04), transparent 70%),
+    var(--color-table);
+}
+.mtg-card__art--logo img {
+  object-fit: contain;
+  padding: 14px 18px;
+}
+
+/* Flame variant — a tall, narrow emblem (MTG flame). Scale it up so it reads
+   as a deliberate centered mark, not a tiny icon lost in the 16/9 window. */
+.mtg-card__art--flame img {
+  width: auto;
+  height: 100%;
+  padding: 10px 0;
+}
+
+/* Type-line plate — repurposed for event date/time */
+.mtg-card__typeline {
+  background:
+    linear-gradient(180deg, rgba(199, 45, 7, 0.22), rgba(199, 45, 7, 0.06)),
+    var(--color-card-face);
+}
+
+/* Text box plate — venue + flavour + buttons, the card's lower region.
+   Grows to absorb height slack so all cards match and buttons bottom-align. */
+.mtg-card__textbox {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background:
+    linear-gradient(180deg, rgba(232, 220, 200, 0.05), rgba(232, 220, 200, 0.02)),
+    var(--color-card-face);
+}
+
+/* Glossy red bevelled "tap" button (Buy Ticket) */
+.btn-tap {
+  position: relative;
+  background: linear-gradient(180deg, var(--color-mtg-red-light), var(--color-mtg-red) 50%, var(--color-mtg-red-dark));
+  color: #fff4ee;
+  border: 1px solid var(--color-mtg-red-deep);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 -2px 4px rgba(0, 0, 0, 0.25) inset,
+    0 4px 10px rgba(0, 0, 0, 0.45);
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.btn-tap:hover {
+  background: linear-gradient(180deg, #f4795a, var(--color-mtg-red-light) 50%, var(--color-mtg-red));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 -2px 4px rgba(0, 0, 0, 0.2) inset,
+    0 6px 16px rgba(0, 0, 0, 0.5);
+}
+.btn-tap:active { transform: translateY(1px); }
+
+/* Deep ReRoll-red display title (reads on the light parchment surface) */
+.title-glow {
+  color: var(--color-brand-red);
+  text-shadow:
+    0 0 16px rgba(199, 45, 7, 0.28),
+    0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* ─── FAQ accordion (on the light parchment surface) ──────────────────────── */
+.faq-item {
+  border: 1px solid rgba(199, 45, 7, 0.22);
+  border-radius: 10px;
+  background: var(--color-bg-paper);
+  box-shadow: 0 1px 2px rgba(30, 22, 16, 0.06);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.faq-item[open] {
+  border-color: rgba(199, 45, 7, 0.45);
+  box-shadow: 0 4px 14px rgba(199, 45, 7, 0.1);
+}
+.faq-summary { outline: none; }
+.faq-summary:hover .font-serif-title { color: var(--color-brand-red-dark); }
+/* hide the default disclosure triangle (Safari) */
+.faq-summary::-webkit-details-marker { display: none; }
+
+/* Dashed-red callout (empty-state) — the card's red identity.
+   .callout-dashed-gold kept as an alias so existing markup keeps working. */
+.callout-dashed-gold,
+.callout-dashed-red {
+  border: 2px dashed rgba(199, 45, 7, 0.55);
+  border-radius: 10px;
+  background: radial-gradient(120% 80% at 50% 0%, rgba(199, 45, 7, 0.07), transparent 60%);
+}
+
+/* ─── Retained reroll prose utilities (recolored to gold on dark) ─────────── */
+.rulebook-dropcap::first-letter {
+  float: left;
+  font-family: var(--font-serif-title);
+  font-size: 3.5rem;
+  line-height: 0.85;
+  padding-top: 4px;
+  padding-right: 8px;
+  color: var(--color-mtg-red);
+  font-weight: bold;
+}
+
+.ornament-corner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-brand-red);
+}
+
+/* set inside the thick red inset frame (frame: inset 14px + 3px border) */
+.ornament-tl { top: 22px; left: 22px; border-right: none; border-bottom: none; }
+.ornament-tr { top: 22px; right: 22px; border-left: none; border-bottom: none; }
+.ornament-bl { bottom: 22px; left: 22px; border-right: none; border-top: none; }
+.ornament-br { bottom: 22px; right: 22px; border-left: none; border-top: none; }
+
+
+/* ─── Reduced motion: disable lifts / zoom / FLIP transforms ──────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .card-lift-shadow,
+  .card-lift-shadow:hover,
+  .mtg-card,
+  .mtg-card:hover { transform: none; transition: box-shadow 0.2s ease, border-color 0.2s ease; }
+  .mana-pips--pulse .mana-pip { animation: none; }
+  .social-fan__card,
+  .social-fan__card.is-played { transition: none !important; }
+}

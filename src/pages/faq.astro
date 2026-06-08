@@ -1,0 +1,164 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { links } from "../config/site";
+
+/**
+ * FAQ page — linked from the FAQ card on the home page.
+ * Edit the `faqs` array below to add/remove questions. Each answer is an array
+ * of paragraphs (strings); a paragraph may contain an inline link by using the
+ * { text, href } object form for that segment.
+ */
+type Segment = string | { text: string; href: string };
+const faqs: { q: string; a: Segment[][] }[] = [
+  {
+    q: "What is this, exactly?",
+    a: [
+      [
+        "This is a community meetup for Magic: The Gathering, one of the world's most popular card games. If you're curious about the game and don't know where to start, or you're already a player looking to find others to play with in-person — this is for you.",
+      ],
+      [
+        "It's a light, friendly environment for players to explore the game and meet the community. It is not a competitive event: be helpful, and expect people to make mistakes.",
+      ],
+    ],
+  },
+  {
+    q: "Is it a paid event? How much are tickets?",
+    a: [
+      [
+        "Yes — this is a paid event. Early-bird tickets are ₹249, and regular tickets are ₹399.",
+      ],
+      [
+        "You can grab your ticket from the checkout link on the event card on the home page.",
+      ],
+    ],
+  },
+  {
+    q: "I've never played before — can I still come?",
+    a: [
+      [
+        "Absolutely. We'll teach you the rules, give you cheat sheets, and pair up new players with each other.",
+      ],
+      [
+        "For newcomers we play with 40-card decks using the Jumpstart 2022 set — a great way to learn the game without spending too much time on deck building. We have 24 premade 20-card decks, each built around a particular mechanic. You mix any two to make a 40-card deck and play against an opponent. It's that simple.",
+      ],
+    ],
+  },
+  {
+    q: "I'm an experienced player — what's on offer?",
+    a: [
+      [
+        "We have a few premade Standard (60-card) decks to play, as well as a few Commander decks.",
+      ],
+      [
+        "We want to match players and decks so games stay balanced and fun, so come find us when you arrive and we'll sort you out.",
+      ],
+    ],
+  },
+  {
+    q: "Can I bring my own deck?",
+    a: [
+      [
+        "You're welcome to bring your own deck — but please talk to our organisers first so we can match players and decks for a balanced, fun game.",
+      ],
+      [
+        "You can also reach us ahead of time on the #magic-the-gathering-meetup channel on our ",
+        { text: "Discord", href: links.discord },
+        ", or on our ",
+        { text: "WhatsApp group", href: links.whatsapp },
+        ".",
+      ],
+    ],
+  },
+  {
+    q: "Which decks and cards are available?",
+    a: [
+      [
+        "We keep a full list of the decks and cards we bring. You can browse it here: ",
+        {
+          text: "Magic: The Gathering deck and card list",
+          href: "https://forum.reroll.in/t/magic-the-gathering-deck-and-card-list/2221",
+        },
+        ".",
+      ],
+    ],
+  },
+  {
+    q: "Where and when do you meet?",
+    a: [
+      [
+        "We meet every Saturday at 5pm at the Underline Center in Indiranagar — open the venue directly on ",
+        { text: "Google Maps", href: "https://maps.app.goo.gl/XuAT9rbmQjyHnRuE9" },
+        ".",
+      ],
+      [
+        "You can also find all our events — with dates, venues and tickets — on our ",
+        { text: "Underline page", href: links.underline },
+        ".",
+      ],
+    ],
+  },
+  {
+    q: "The ticket link isn't working, or the event looks out of date — what do I do?",
+    a: [
+      [
+        "Sorry about that! Please reach out and we'll sort it. Email Mohit at ",
+        { text: "mohitgumber236@gmail.com", href: "mailto:mohitgumber236@gmail.com" },
+        " or Karthik at ",
+        { text: "karthikb351@gmail.com", href: "mailto:karthikb351@gmail.com" },
+        ", and we'll get the listing fixed.",
+      ],
+    ],
+  },
+];
+---
+
+<Layout
+  title="FAQ"
+  description="Frequently asked questions about Magic: The Gathering meetups with ReRoll Board Games in Bangalore — for new and experienced players alike."
+  tagline="Everything a newcomer (or a returning planeswalker) tends to ask, answered."
+>
+  <section class="w-full max-w-3xl mx-auto">
+    <h2 class="font-serif-title title-glow text-center text-2xl md:text-3xl font-bold uppercase tracking-[0.14em] mb-3">
+      Frequently Asked Questions
+    </h2>
+    <p class="text-center font-serif-body italic text-text-ink-muted mb-10">
+      Can't find your answer? Reach out on any of our socials.
+    </p>
+
+    <div class="flex flex-col gap-5">
+      {faqs.map((item) => (
+        <details class="faq-item group">
+          <summary class="faq-summary flex items-center justify-between gap-4 cursor-pointer list-none px-5 py-4">
+            <span class="font-serif-title text-brand-red font-bold uppercase tracking-wide text-sm md:text-base leading-snug">
+              {item.q}
+            </span>
+            <span
+              class="shrink-0 text-brand-red-light text-xl leading-none select-none transition-transform duration-300 group-open:rotate-45"
+              aria-hidden="true"
+            >+</span>
+          </summary>
+          <div class="px-5 pb-5 pt-1 flex flex-col gap-3">
+            {item.a.map((para) => (
+              <p class="font-serif-body text-[1.02rem] leading-relaxed text-text-ink/90">
+                {para.map((seg) =>
+                  typeof seg === "string" ? (
+                    seg
+                  ) : (
+                    <a
+                      href={seg.href}
+                      target="_blank"
+                      rel="noopener"
+                      class="text-brand-red font-semibold underline underline-offset-4 decoration-brand-red/40 hover:text-brand-red-dark transition-colors"
+                    >
+                      {seg.text}
+                    </a>
+                  )
+                )}
+              </p>
+            ))}
+          </div>
+        </details>
+      ))}
+    </div>
+  </section>
+</Layout>

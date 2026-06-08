@@ -1,0 +1,61 @@
+---
+import Layout from "../layouts/Layout.astro";
+import EventCard from "../components/EventCard.astro";
+import CodeOfConduct from "../components/CodeOfConduct.astro";
+import FaqCard from "../components/FaqCard.astro";
+import SocialPacks from "../components/SocialPacks.astro";
+import { getEventCards } from "../config/site";
+
+// Build-time fetch of the live event feed (falls back to the canonical event).
+const events = await getEventCards();
+---
+
+<Layout
+  title="Home"
+  tagline="Brought to you by ReRoll Board Games. Bring a deck or borrow one — beginners and veterans welcome."
+>
+  <!-- Gold subheading in the masthead (shared bone) -->
+  <p slot="masthead-extra" class="font-serif-title text-mtg-gold uppercase tracking-[0.2em] text-xs md:text-sm font-bold mt-7">
+    Upcoming Events
+  </p>
+
+  <!-- Event card(s) + Code of Conduct card, side by side -->
+  <section class="w-full grid grid-cols-1 md:grid-cols-3 gap-6 justify-items-center items-stretch">
+    {events.length > 0 ? (
+      events.map((event) => (
+        <div class="w-full max-w-[480px] flex"><EventCard event={event} /></div>
+      ))
+    ) : (
+      <div class="w-full max-w-[480px]">
+        <div class="callout-dashed-gold text-center px-6 py-10">
+          <p class="font-serif-title text-mtg-gold uppercase tracking-wide text-lg font-bold">
+            No upcoming events
+          </p>
+          <p class="font-serif-body italic text-text-ink/90 mt-3 leading-relaxed">
+            Join our socials in the meantime!
+          </p>
+          <p class="font-sans-ui text-[0.65rem] uppercase tracking-[0.16em] text-text-ink-muted mt-4">
+            If you think this is an error please contact us
+          </p>
+        </div>
+      </div>
+    )}
+
+    <!-- Code of Conduct, next to the event card -->
+    <div class="w-full max-w-[480px] flex"><CodeOfConduct /></div>
+
+    <!-- FAQ teaser, linking to the full /faq page -->
+    <div class="w-full max-w-[480px] flex"><FaqCard /></div>
+  </section>
+
+  <!-- Find us: the booster packs -->
+  <section class="w-full mt-20 md:mt-28">
+    <h2 class="font-serif-title title-glow text-center text-2xl md:text-3xl font-bold uppercase tracking-[0.14em]">
+      Find Us
+    </h2>
+    <p class="text-center font-serif-body italic text-text-ink-muted mt-3 mb-8">
+      Crack open a pack.
+    </p>
+    <SocialPacks />
+  </section>
+</Layout>

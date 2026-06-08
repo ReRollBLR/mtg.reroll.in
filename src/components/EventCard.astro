@@ -1,0 +1,106 @@
+---
+/**
+ * The universal MTG card primitive used for events.
+ * Construction mirrors reroll's playing card: outer frame → inner ring →
+ * content, but in MTG materials (type-gradient frame, red ring, dark face,
+ * gloss/bevel). Hover lift + rotate is driven by the shared easing in CSS.
+ */
+import type { EventCard } from "../config/site";
+import ManaPips from "./ManaPips.astro";
+
+interface Props {
+  event: EventCard;
+}
+
+const { event } = Astro.props;
+
+// §7 type → outer frame gradient (the Magic color pie, polychrome inside the frame only)
+const typeGrad: Record<EventCard["type"], string> = {
+  show: "linear-gradient(150deg, var(--color-mtg-red-light), var(--color-mtg-red) 48%, var(--color-mtg-red-dark) 82%, var(--color-mtg-red-deep))", // red frame (default)
+  jam: "linear-gradient(150deg, #5cc488, #2f7d4f 55%, #143a26)",     // green
+  workshop: "linear-gradient(150deg, #5fa3e0, #2a6db0 55%, #112f4e)",// blue (normally filtered out)
+};
+const typeLabel: Record<EventCard["type"], string> = {
+  show: "Event",
+  jam: "Jam",
+  workshop: "Workshop",
+};
+---
+
+<article class="mtg-card w-full" style={`--card-grad:${typeGrad[event.type]}`}>
+  <!-- The colored frame skeleton. Each panel below is an embossed plate that
+       sits ON this gradient, so the frame color shows through the gaps. -->
+  <div class="mtg-card__frame">
+    <!-- Title plate -->
+    <div class="mtg-card__plate mtg-card__titlebar flex items-center justify-between gap-2 px-3.5 py-2.5">
+      <h3 class="min-w-0 truncate font-serif-title text-mtg-red-ember font-bold uppercase tracking-tight text-base md:text-lg leading-tight">
+        {event.title}
+      </h3>
+      <!-- All five WUBRG mana symbols — a five-color "every color / everyone
+           welcome" statement, and the vibrant, instantly-Magic accent. -->
+      <span class="shrink-0"><ManaPips pulse size={13} /></span>
+    </div>
+
+    <!-- Art window — framed like a real card's art box -->
+    <div class="mtg-card__art aspect-[16/9] flex items-center justify-center">
+      {event.image ? (
+        <img src={event.image} alt={`${event.title} art`} loading="lazy" />
+      ) : (
+        <span class="text-mtg-red-light/40 text-5xl select-none" aria-hidden="true">✦</span>
+      )}
+    </div>
+
+    <!-- Type line (repurposed for event date/time, IST) -->
+    <div class="mtg-card__plate mtg-card__typeline px-3 py-2 flex items-center justify-between gap-2">
+      <span class="font-serif-title text-mtg-red-ember text-[0.7rem] md:text-xs font-bold uppercase tracking-[0.12em]">
+        {event.date}
+      </span>
+      <span class="font-sans-ui text-text-parchment-muted text-[0.6rem] uppercase tracking-[0.16em]">
+        {typeLabel[event.type]}
+      </span>
+    </div>
+
+    <!-- Text box — venue + flavour, the card's lower plate -->
+    <div class="mtg-card__plate mtg-card__textbox px-4 pt-3 pb-4">
+      <p class="text-center font-sans-ui text-[0.65rem] uppercase tracking-[0.14em] text-text-parchment-muted">
+        <a
+          href="https://maps.app.goo.gl/XuAT9rbmQjyHnRuE9"
+          target="_blank"
+          rel="noopener"
+          class="underline underline-offset-4 decoration-mtg-red-light/40 hover:text-mtg-red-ember transition-colors"
+        >
+          {event.venue}
+        </a>
+      </p>
+      <div class="h-px w-full bg-mtg-red-light/20 my-3"></div>
+      <p class="font-serif-body text-[1.02rem] leading-snug text-text-parchment">
+        {event.blurb}
+      </p>
+
+      <!-- The CTA button — the card body ends here. -->
+      <div class="mt-auto pt-4 flex flex-col gap-3">
+        <a
+          href={event.ctaHref}
+          target="_blank"
+          rel="noopener"
+          class="btn-tap rounded-md text-center font-sans-ui text-xs font-bold uppercase tracking-[0.16em] px-5 py-3"
+        >
+          {event.ctaText}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  {event.learnMore && (
+    <!-- Collector line — sits on the black card edge, like a real card's
+         ™ & © Wizards copyright/collector strip. Doubles as the Learn More link. -->
+    <a
+      href={event.learnMore}
+      target="_blank"
+      rel="noopener"
+      class="mtg-card__collector"
+    >
+      Learn More ↗
+    </a>
+  )}
+</article>

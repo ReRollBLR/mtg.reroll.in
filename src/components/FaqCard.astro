@@ -1,0 +1,52 @@
+---
+/**
+ * FAQ teaser card, sitting alongside the event + Code of Conduct cards.
+ * Same MTG construction (black border → colored frame → embossed plates): a
+ * short blurb + a link to the full FAQ page (/faq).
+ */
+---
+
+<article class="mtg-card w-full" style="--card-grad:linear-gradient(150deg, var(--color-mtg-red-light), var(--color-mtg-red) 48%, var(--color-mtg-red-dark) 82%, var(--color-mtg-red-deep))">
+  <div class="mtg-card__frame">
+    <!-- Title plate -->
+    <div class="mtg-card__plate mtg-card__titlebar flex items-center justify-between gap-2 px-3.5 py-2.5">
+      <h3 class="min-w-0 truncate font-serif-title text-mtg-red-ember font-bold uppercase tracking-tight text-base md:text-lg leading-tight">
+        Frequently Asked
+      </h3>
+      <span class="shrink-0 text-mtg-red-light/80 text-lg leading-none select-none" aria-hidden="true">✦</span>
+    </div>
+
+    <!-- Art window — the MTG flame mark -->
+    <div class="mtg-card__art mtg-card__art--logo mtg-card__art--flame aspect-[16/9] flex items-center justify-center">
+      <img src="/icons/mtg.svg" alt="Magic: The Gathering flame mark" loading="lazy" />
+    </div>
+
+    <!-- Type line (repurposed for the document subtitle) -->
+    <div class="mtg-card__plate mtg-card__typeline px-3 py-2 flex items-center justify-between gap-2">
+      <span class="font-serif-title text-mtg-red-ember text-[0.7rem] md:text-xs font-bold uppercase tracking-[0.12em]">
+        Questions &amp; Answers
+      </span>
+      <span class="font-sans-ui text-text-parchment-muted text-[0.6rem] uppercase tracking-[0.16em]">
+        Oracle Text
+      </span>
+    </div>
+
+    <!-- Text box — the blurb + button -->
+    <div class="mtg-card__plate mtg-card__textbox px-4 pt-3 pb-4">
+      <p class="font-serif-body text-[1.02rem] leading-snug text-text-parchment">
+        New to the table or just curious? From what to bring and how much it
+        costs, to whether beginners are welcome — we've gathered the questions
+        we hear most, with straight answers.
+      </p>
+
+      <div class="mt-auto pt-4 flex flex-col gap-3">
+        <a
+          href="/faq"
+          class="btn-tap rounded-md text-center font-sans-ui text-xs font-bold uppercase tracking-[0.16em] px-5 py-3"
+        >
+          Read the FAQ
+        </a>
+      </div>
+    </div>
+  </div>
+</article>

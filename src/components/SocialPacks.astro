@@ -1,0 +1,220 @@
+---
+/**
+ * Social links as unopened booster packs lying flat on a surface.
+ * A single slightly-scattered row (random tilt + slight overlap) that wraps to
+ * 2×2 on mobile. Each pack is a direct link — one tap opens that social.
+ * Brand color per pack (§7 polychrome inside the frame); gold foil accents.
+ * Shared easing on the pick-up hover. No JS, no FLIP.
+ */
+import { socials } from "../config/site";
+
+// Inline SVG icons (no icon library), currentColor.
+const icons: Record<string, string> = {
+  reroll:
+    '<path d="M21 12a9 9 0 1 1-3-6.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 3v5h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+  discord:
+    '<path d="M19.3 5.4A17 17 0 0 0 15.1 4l-.2.4a13 13 0 0 1 3.7 1.9 12 12 0 0 0-10.6-.4l-.4.2A12 12 0 0 1 11.1 4l-.3-.4A17 17 0 0 0 4.7 5.4C2.4 8.8 1.8 12.2 2.1 15.5a17 17 0 0 0 5.1 2.6l.5-.7a11 11 0 0 1-1.7-.8l.4-.3a8.6 8.6 0 0 0 7.3 0l.4.3c-.5.3-1.1.6-1.7.8l.5.7a17 17 0 0 0 5.1-2.6c.4-3.9-.6-7.3-3-10.6zM9 13.6c-.8 0-1.4-.7-1.4-1.6S8.2 10.4 9 10.4s1.4.7 1.4 1.6S9.8 13.6 9 13.6zm6 0c-.8 0-1.4-.7-1.4-1.6s.6-1.6 1.4-1.6 1.4.7 1.4 1.6-.6 1.6-1.4 1.6z" fill="currentColor"/>',
+  instagram:
+    '<rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="17" cy="7" r="1.2" fill="currentColor"/>',
+  underline:
+    '<path d="M7 4v8a5 5 0 0 0 10 0V4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M5 20h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>',
+  whatsapp:
+    '<path d="M4 20l1.4-4.1A8 8 0 1 1 8.5 18.5L4 20z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>',
+};
+
+// Foil wrapper gradient per brand (the pack's body color) — brightened: lighter,
+// more saturated mid + end stops so the foil pops instead of sinking to dark.
+const themeGrad: Record<string, string> = {
+  reroll: "linear-gradient(155deg, #f4dd8e 0%, #e0b347 45%, #a87d2c 100%)",
+  discord: "linear-gradient(155deg, #b4c0ff 0%, #6f7bff 45%, #3a48c0 100%)",
+  instagram: "linear-gradient(155deg, #ff9ec2 0%, #ec4a82 45%, #b03059 100%)",
+  underline: "linear-gradient(155deg, #cfbcff 0%, #936bff 45%, #5b34c8 100%)",
+  whatsapp: "linear-gradient(155deg, #8dfbb4 0%, #2fe077 45%, #1c9a4d 100%)",
+};
+
+// Subtle alternating tilt so the inline row/column reads as deliberately
+// lined up (not tossed). Deterministic → stable SSR (no hydration jump).
+const tilts = [-1.5, 1.5, -1.5, 1.5];
+const nudges = [0, 0, 0, 0]; // kept in line — no vertical nudge
+---
+
+<div class="pack-table" role="list" aria-label="Find us on socials">
+  {socials.map((s, i) => (
+    <a
+      href={s.href}
+      target="_blank"
+      rel="noopener"
+      role="listitem"
+      class="pack"
+      style={`--pack-grad:${themeGrad[s.theme]}; --tilt:${tilts[i % tilts.length]}deg; --nudge:${nudges[i % nudges.length]}px`}
+      aria-label={`${s.label} — ${s.handle}`}
+    >
+      <span class="pack__body">
+        <!-- serrated tear strip + hang hole at the top -->
+        <span class="pack__crimp" aria-hidden="true"></span>
+        <span class="pack__hole" aria-hidden="true"></span>
+        <!-- foil sheen sweep -->
+        <span class="pack__sheen" aria-hidden="true"></span>
+
+        <span class="pack__content">
+          <span class="pack__icon" set:html={icons[s.icon]} aria-hidden="true"></span>
+          <span class="pack__label font-serif-title">{s.label}</span>
+          <span class="pack__handle font-serif-body">{s.handle}</span>
+          <span class="pack__open font-sans-ui">Open</span>
+        </span>
+      </span>
+    </a>
+  ))}
+</div>
+
+<style>
+  .pack-table {
+    /* desktop: all packs in one horizontal line */
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: flex-end;
+    gap: clamp(0.6rem, 3vw, 1.4rem);
+    max-width: 900px;
+    margin-inline: auto;
+    /* packs rest on the real .table-surface; each pack carries its own shadow */
+    padding: 1.5rem 1rem 2.5rem;
+  }
+
+  .pack {
+    --pack-w: clamp(124px, 22vw, 172px);
+    display: block;
+    width: var(--pack-w);
+    /* lying flat on the table */
+    transform: rotate(var(--tilt)) translateY(var(--nudge));
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+                filter 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    /* table contact shadow (soft, for a light surface) */
+    filter: drop-shadow(0 8px 10px rgba(30, 22, 16, 0.22));
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* picked up off the table on hover/focus */
+  .pack:hover,
+  .pack:focus-visible {
+    transform: rotate(0deg) translateY(-12px) scale(1.04);
+    filter: drop-shadow(0 18px 16px rgba(30, 22, 16, 0.32));
+    z-index: 5;
+    outline: none;
+  }
+
+  .pack__body {
+    position: relative;
+    display: block;
+    aspect-ratio: 5 / 7.4;
+    border-radius: 7px;
+    background: var(--pack-grad);
+    border: 1px solid rgba(0, 0, 0, 0.45);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.22) inset,
+      0 -8px 16px rgba(0, 0, 0, 0.15) inset;
+    overflow: hidden;
+    padding-top: 14px; /* room for the crimp */
+  }
+
+  /* serrated heat-seal crimp across the top (the tear strip) */
+  .pack__crimp {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 14px;
+    background:
+      repeating-linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.35) 0 3px,
+        rgba(255, 255, 255, 0.12) 3px 6px
+      );
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+  /* punched hang hole */
+  .pack__hole {
+    position: absolute;
+    top: 3px; left: 50%;
+    width: 8px; height: 8px;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: var(--color-bg-dark, #0e0c0a);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(0,0,0,0.6);
+  }
+  /* diagonal foil sheen */
+  .pack__sheen {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.28) 47%,
+      rgba(255, 255, 255, 0.05) 55%,
+      transparent 65%
+    );
+    pointer-events: none;
+  }
+
+  .pack__content {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.75rem 0.5rem 1rem;
+    text-align: center;
+    /* lighter glossy label scrim — enough to read text, foil still shows through */
+    background: radial-gradient(120% 70% at 50% 55%, rgba(14, 12, 10, 0.45), rgba(14, 12, 10, 0.18) 70%, transparent);
+  }
+  .pack__icon {
+    color: #fff;
+    width: 2.2rem;
+    height: 2.2rem;
+    /* dark halo so the logo reads on any foil color */
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85))
+            drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+  }
+  .pack__icon :global(svg) { width: 100%; height: 100%; }
+  .pack__label {
+    color: var(--color-mtg-gold);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-size: clamp(0.82rem, 3vw, 1rem);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85), 0 0 6px rgba(0, 0, 0, 0.5);
+  }
+  .pack__handle {
+    color: var(--color-text-parchment);
+    font-style: italic;
+    font-size: 0.72rem;
+    line-height: 1.2;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85), 0 0 5px rgba(0, 0, 0, 0.5);
+  }
+  .pack__open {
+    margin-top: 0.3rem;
+    color: var(--color-mtg-gold);
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    opacity: 0.85;
+  }
+
+  @media (max-width: 640px) {
+    /* mobile: all packs stacked in one vertical line */
+    .pack-table {
+      flex-direction: column;
+      align-items: center;
+      gap: 0.9rem;
+      max-width: 260px;
+    }
+    .pack { --pack-w: clamp(150px, 60vw, 200px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pack { transition: filter 0.2s ease; }
+    .pack:hover,
+    .pack:focus-visible { transform: rotate(var(--tilt)) translateY(var(--nudge)); }
+  }
+</style>

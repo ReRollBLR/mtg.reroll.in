@@ -1,0 +1,118 @@
+---
+import "../styles/global.css";
+import AnnouncementBanner from "../components/AnnouncementBanner.astro";
+import { announcement } from "../config/announcement";
+import { links } from "../config/site";
+
+interface Props {
+  title: string;
+  description?: string;
+  tagline?: string;
+}
+
+const {
+  title,
+  description = "The only (as far as we know) mtg group in Bangalore!Beginners and veterans welcome!",
+  tagline,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- SEO -->
+    <title>{title} | MTG Reroll</title>
+    <meta name="description" content={description} />
+    <meta name="author" content="MTG Reroll" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={`${title} | MTG Reroll`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content="https://mtg.reroll.in" />
+    <meta property="og:image" content="/images/logo-header.png" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary" />
+    <meta property="twitter:title" content={`${title} | MTG Reroll`} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content="/images/logo-header.png" />
+
+    <!-- Google Fonts: swap these families if the brand changes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    {announcement.enabled && (
+      <AnnouncementBanner
+        text={announcement.text}
+        ctaText={announcement.ctaText}
+        ctaHref={announcement.ctaHref}
+      />
+    )}
+
+    <!-- The white surface now fills the whole page (full height + width), so the
+         dark backdrop never peeks out above/below the content. -->
+    <div class="table-surface flex flex-col items-center flex-1 w-full px-4 md:px-8 pt-4 md:pt-6 pb-8 text-text-ink">
+      <!-- Vintage corner ornaments — pinned to the page frame's corners -->
+      <div class="ornament-corner ornament-tl"></div>
+      <div class="ornament-corner ornament-tr"></div>
+      <div class="ornament-corner ornament-bl"></div>
+      <div class="ornament-corner ornament-br"></div>
+
+      <!-- the threshold: back to the reroll superhome -->
+      <a
+        href={links.reroll}
+        class="group self-start inline-flex items-center gap-2 font-sans-ui text-[0.7rem] uppercase tracking-[0.18em] font-bold text-brand-red-light hover:text-brand-red transition-colors mb-4 ml-[6%] md:ml-[10%]"
+      >
+        <span class="inline-block transition-transform duration-300 group-hover:-translate-x-1">←</span>
+        Back to ReRoll
+      </a>
+
+      <div
+        id="main-board-container"
+        class="w-full max-w-6xl text-text-ink p-2 md:p-6 relative"
+      >
+        <header class="flex flex-col items-center justify-center mb-8 md:mb-12 border-b border-brand-red/20 pb-8 text-center">
+          <a href="/" class="group flex flex-col items-center">
+            <h1
+              id="site-title"
+              class="font-serif-title title-glow uppercase font-bold tracking-[0.12em] text-3xl md:text-5xl leading-tight transition-transform duration-300 group-hover:scale-[1.02]"
+            >
+              Magic: The Gathering<br />Bangalore
+            </h1>
+          </a>
+          {tagline && (
+            <p class="font-serif-body text-sm md:text-base italic text-text-ink-muted mt-4 max-w-xl leading-relaxed">
+              {tagline}
+            </p>
+          )}
+        </header>
+
+        <main><slot /></main>
+
+        <footer class="mt-12 md:mt-16 pt-8 border-t border-brand-red/20 text-center">
+          <div class="flex flex-col items-center gap-3">
+            <p class="font-sans-ui text-xs tracking-wider text-text-ink-muted uppercase">
+              © {new Date().getFullYear()} ReRoll Board Games
+            </p>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </body>
+</html>
