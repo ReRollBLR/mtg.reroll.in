@@ -44,7 +44,7 @@ const typeLabel: Record<EventCard["type"], string> = {
     <!-- Art window — framed like a real card's art box -->
     <div class="mtg-card__art aspect-[16/9] flex items-center justify-center">
       {event.image ? (
-        <img src={event.image} alt={`${event.title} art`} loading="lazy" />
+        <img src={event.image} alt={`${event.title} art`} fetchpriority="high" />
       ) : (
         <span class="text-mtg-red-light/40 text-5xl select-none" aria-hidden="true">✦</span>
       )}

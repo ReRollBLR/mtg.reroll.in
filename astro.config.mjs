@@ -3,6 +3,9 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   site: 'https://mtg.reroll.in',     // used for canonical URLs / sitemap
+  build: {
+    inlineStylesheets: 'always',
+  },
   vite: {
     plugins: [tailwindcss()],
   },

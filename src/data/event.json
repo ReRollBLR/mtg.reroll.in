@@ -2,21 +2,21 @@
   "title": "Magic: The Gathering",
   "excerpt": "Join the only (as far as we know) MTG group in Bangalore for a day of Magic. Beginners and veterans welcome — bring a deck or borrow one!",
   "full_content": null,
-  "image_url": "https://underline.center/uploads/default/original/1X/648ccd6cad9b66fb9632156ffc8ee2c320af975c.jpeg",
+  "image_url": "/images/mtg-art.webp",
   "thumbnails": [
     {
       "max_width": null,
       "max_height": null,
       "width": 690,
       "height": 388,
-      "url": "https://underline.center/uploads/default/original/1X/648ccd6cad9b66fb9632156ffc8ee2c320af975c.jpeg"
+      "url": "/images/mtg-art.webp"
     },
     {
       "max_width": 600,
       "max_height": 600,
       "width": 600,
       "height": 337,
-      "url": "https://underline.center/uploads/default/optimized/1X/648ccd6cad9b66fb9632156ffc8ee2c320af975c_2_600x337.jpeg"
+      "url": "/images/mtg-art.webp"
     }
   ],
   "dateLine": "Every Saturday, 6pm",
