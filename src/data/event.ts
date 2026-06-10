@@ -23,7 +23,7 @@ import fallbackJson from "./event.json";
  * scheduled. Fetched once at build time.
  */
 const FEED_URL =
-  "https://github.com/heresmohit/UC-ingest/releases/download/mtg-latest/events.json";
+  "https://github.com/heresmohit/UC-ingest/releases/tag/events-latest/events.json";
 
 /** The Underline-feed event shape. The fetch target must conform to this. */
 export interface RawEvent {
