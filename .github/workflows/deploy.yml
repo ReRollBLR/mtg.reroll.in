@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [pride]
   workflow_dispatch:
   schedule:
     # Weekly rebuild to bake in the latest event feed (new date / ticket link).
