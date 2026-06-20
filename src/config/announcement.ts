@@ -3,8 +3,8 @@
  * Set `enabled: false` to hide it.
  */
 export const announcement = {
-  enabled: false,
-  text: "Your announcement text here",
-  ctaText: "Learn More",
-  ctaHref: "https://example.com",
+  enabled: true,
+  text: "June 27: We are doing a commander event to celebrate Pride month! ",
+  ctaText: "Rules here",
+  ctaHref: "https://magic.wizards.com/en/news/announcements/magic-presents-pride-returns-june-2026-with-a-new-promo-card",
 } as const;

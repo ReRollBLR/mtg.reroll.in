@@ -23,7 +23,7 @@ import fallbackJson from "./event.json";
  * scheduled. Fetched once at build time.
  */
 const FEED_URL =
-  "https://github.com/heresmohit/UC-ingest/releases/tag/events-latest/events.json";
+  "https://github.com/heresmohit/UC-ingest/releases/download/events-latest/mtg.json";
 
 /** The Underline-feed event shape. The fetch target must conform to this. */
 export interface RawEvent {
@@ -75,6 +75,20 @@ export const fallbackEvent: RawEvent = fallbackJson;
  * `event_starts_at`/`ticket_url`; see §11), so each value is read from a list
  * of candidate keys. A missing/blank value returns `undefined` → no override.
  */
+function formatDateLine(iso: string): string {
+  const date = new Date(iso);
+  if (isNaN(date.getTime())) return iso;
+  return date.toLocaleDateString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
 function readOverrides(entry: unknown): { dateLine?: string; url?: string } {
   if (!entry || typeof entry !== "object") return {};
   const e = entry as Record<string, any>;
@@ -87,9 +101,13 @@ function readOverrides(entry: unknown): { dateLine?: string; url?: string } {
     return undefined;
   };
 
+  const rawDate = pick("dateLine", "date_line", "event_starts_at", "starts_at", "date");
+  const dateLine = rawDate && /^\d{4}-\d{2}-\d{2}T/.test(rawDate)
+    ? formatDateLine(rawDate)
+    : rawDate;
+
   return {
-    // Event date/time line.
-    dateLine: pick("dateLine", "date_line", "event_starts_at", "starts_at", "date"),
+    dateLine,
     // Ticket link (the Buy Tickets CTA).
     url: pick("url", "ticket_url", "tickets_url"),
   };

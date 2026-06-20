@@ -64,7 +64,9 @@ const hasCta = Boolean(ctaText && ctaHref);
 <style>
   /* MTG skin: gold-on-dark (was reroll maroon-on-gold) */
   .ann-banner {
-    position: relative;
+    position: sticky;
+    top: 0;
+    z-index: 50;
     width: 100%;
     background-color: #14110b;
     color: var(--color-mtg-gold, #c9a84c);
