@@ -20,13 +20,13 @@ const events = await getEventCards();
   </p>
 
   <!-- Event card(s) + Code of Conduct card, side by side -->
-  <section class="w-full grid grid-cols-1 md:grid-cols-3 gap-6 justify-items-center items-stretch">
+  <section class="w-full grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
     {events.length > 0 ? (
       events.map((event) => (
-        <div class="w-full max-w-[480px] flex"><EventCard event={event} /></div>
+        <div class="flex"><EventCard event={event} /></div>
       ))
     ) : (
-      <div class="w-full max-w-[480px]">
+      <div>
         <div class="callout-dashed-gold text-center px-6 py-10">
           <p class="font-serif-title text-mtg-gold uppercase tracking-wide text-lg font-bold">
             No upcoming events
@@ -41,11 +41,11 @@ const events = await getEventCards();
       </div>
     )}
 
-    <!-- Code of Conduct, next to the event card -->
-    <div class="w-full max-w-[480px] flex"><CodeOfConduct /></div>
-
     <!-- FAQ teaser, linking to the full /faq page -->
-    <div class="w-full max-w-[480px] flex"><FaqCard /></div>
+    <div class="flex"><FaqCard /></div>
+
+    <!-- Code of Conduct, next to the event card -->
+    <div class="flex"><CodeOfConduct /></div>
   </section>
 
   <!-- Find us: the booster packs -->

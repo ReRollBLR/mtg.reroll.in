@@ -52,14 +52,9 @@
   --color-table-edge: #d8cdbb;  /* parchment rim/bevel */
 }
 
-/* ─── Base: warm tabletop page with the two mana glows ────────────────────── */
+/* ─── Base ─────────────────────────────────────────────────────────────────── */
 html, body {
   background-color: var(--color-bg-dark);
-  /* warm gold top-left + a soft cool accent bottom-right (the mana split) */
-  background-image:
-    radial-gradient(60rem 50rem at 0% 0%, rgba(199, 45, 7, 0.12), transparent 62%),
-    radial-gradient(60rem 50rem at 100% 100%, rgba(73, 61, 139, 0.10), transparent 62%);
-  background-attachment: fixed;
   color: var(--color-text-parchment);
   font-family: var(--font-serif-body);
   font-size: 18px;
@@ -71,34 +66,39 @@ html, body {
 .table-surface {
   position: relative;
   background-color: var(--color-table);
-  /* subtle parchment grain (echoes reroll's .bg-parchment-texture) */
+  /* 1979 Gilbert Baker six-stripe pride flag */
   background-image:
-    radial-gradient(rgba(199, 45, 7, 0.02) 1px, transparent 1px),
-    radial-gradient(rgba(30, 22, 16, 0.03) 1px, transparent 1px);
-  background-size: 32px 32px, 32px 32px;
-  background-position: 0 0, 16px 16px;
+    linear-gradient(180deg,
+      rgba(228, 3,   3,   0.22) 0% 16.6%,
+      rgba(255, 140, 0,   0.22) 16.6% 33.2%,
+      rgba(255, 237, 0,   0.22) 33.2% 49.8%,
+      rgba(0,   128, 38,  0.22) 49.8% 66.4%,
+      rgba(0,   77,  255, 0.22) 66.4% 83%,
+      rgba(117, 7,   135, 0.22) 83% 100%
+    );
 }
-/* Inset rulebook frame — thick reroll red, set in from the page edge */
+/* Inset rulebook frame — pride rainbow border, inset via padding + border-image */
 .table-surface::after {
   content: "";
   position: absolute;
   inset: 14px;
-  border: 3px solid rgba(199, 45, 7, 0.7);
-  border-radius: 2px;
+  border: 3px solid;
+  border-image: linear-gradient(90deg, #E40303 0% 16.6%, #FF8C00 16.6% 33.2%, #FFED00 33.2% 49.8%, #008026 49.8% 66.4%, #004DFF 66.4% 83%, #750787 83% 100%) 1;
   pointer-events: none;
 }
 
-/* ─── Mana-color bar (the "you've crossed planes" signal) ─────────────────── */
+/* ─── Mana-color bar — pride rainbow for June ─────────────────────────────── */
 .mana-bar {
-  height: 4px;
+  height: 5px;
   width: 100%;
   background: linear-gradient(
     90deg,
-    var(--color-mana-white) 0% 20%,
-    var(--color-mana-blue)  20% 40%,
-    var(--color-mana-black) 40% 60%,
-    var(--color-mana-red)   60% 80%,
-    var(--color-mana-green) 80% 100%
+    #E40303 0% 16.6%,
+    #FF8C00 16.6% 33.2%,
+    #FFED00 33.2% 49.8%,
+    #008026 49.8% 66.4%,
+    #004DFF 66.4% 83%,
+    #750787 83% 100%
   );
 }
 
@@ -387,6 +387,7 @@ html, body {
 .ornament-tr { top: 22px; right: 22px; border-left: none; border-bottom: none; }
 .ornament-bl { bottom: 22px; left: 22px; border-right: none; border-top: none; }
 .ornament-br { bottom: 22px; right: 22px; border-left: none; border-top: none; }
+
 
 
 /* ─── Reduced motion: disable lifts / zoom / FLIP transforms ──────────────── */

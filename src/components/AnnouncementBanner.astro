@@ -62,15 +62,16 @@ const hasCta = Boolean(ctaText && ctaHref);
 </div>
 
 <style>
-  /* MTG skin: gold-on-dark (was reroll maroon-on-gold) */
+  /* Pride skin: dark bg with a subtle rainbow underline */
   .ann-banner {
     position: sticky;
     top: 0;
     z-index: 50;
     width: 100%;
     background-color: #14110b;
-    color: var(--color-mtg-gold, #c9a84c);
-    border-bottom: 1px solid rgba(201, 168, 76, 0.3);
+    color: #ffffff;
+    border-bottom: 3px solid transparent;
+    border-image: linear-gradient(90deg, #e40303, #ff8c00, #ffed00, #008026, #004dff, #750787) 1;
     overflow: hidden;
     font-family: var(--font-sans-ui), sans-serif;
   }
@@ -105,16 +106,16 @@ const hasCta = Boolean(ctaText && ctaHref);
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #ffefd6;
+    color: #ffffff;
     text-decoration: underline;
     text-underline-offset: 3px;
     text-decoration-thickness: 1px;
-    transition: color 0.2s ease;
+    transition: opacity 0.2s ease;
   }
 
   .ann-marquee__cta:hover,
   .ann-static__cta:hover {
-    color: #ffffff;
+    opacity: 0.8;
   }
 
   .ann-arrow {
@@ -150,7 +151,7 @@ const hasCta = Boolean(ctaText && ctaHref);
   }
 
   .ann-marquee__sep {
-    color: rgba(255, 217, 160, 0.5);
+    color: rgba(255, 255, 255, 0.6);
     font-size: 0.7rem;
   }
 
