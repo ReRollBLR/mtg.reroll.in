@@ -33,7 +33,7 @@ const typeLabel: Record<EventCard["type"], string> = {
   <div class="mtg-card__frame">
     <!-- Title plate -->
     <div class="mtg-card__plate mtg-card__titlebar flex items-center justify-between gap-2 px-3.5 py-2.5">
-      <h3 class="min-w-0 truncate font-serif-title text-mtg-red-ember font-bold uppercase tracking-tight text-base md:text-lg leading-tight">
+      <h3 class={`min-w-0 truncate font-serif-title font-bold uppercase tracking-tight text-base md:text-lg leading-tight ${event.type === 'show' ? 'gold-foil-text' : 'text-mtg-red-ember'}`}>
         {event.title}
       </h3>
       <!-- All five WUBRG mana symbols — a five-color "every color / everyone
