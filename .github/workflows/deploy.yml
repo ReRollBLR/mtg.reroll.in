@@ -28,7 +28,10 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: "npm"
-      - run: npm ci
+      # Use `npm install` rather than `npm ci`: the lockfile is generated on
+      # macOS/npm-11 and can omit Linux-only optional deps (npm/cli#4828), which
+      # makes strict `npm ci` fail. `npm install` resolves platform deps on the runner.
+      - run: npm install --no-audit --no-fund
       - run: npm run build
       - uses: actions/upload-pages-artifact@v5
         with:
@@ -38,6 +41,9 @@ jobs:
     name: Deploy
     needs: build
     runs-on: ubuntu-latest
+    # Fail fast if the Pages backend stalls on `deployment_queued` instead of
+    # blocking the concurrency group for the full default timeout.
+    timeout-minutes: 5
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
