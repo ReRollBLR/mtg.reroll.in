@@ -3,8 +3,8 @@
  * Set `enabled: false` to hide it.
  */
 export const announcement = {
-  enabled: false,
-  text: "HAPPY PRIDE! June 27: We are doing a commander event to celebrate Pride month! ",
-  ctaText: "Learn more",
-  ctaHref: "https://magic.wizards.com/en/news/announcements/magic-presents-pride-returns-june-2026-with-a-new-promo-card",
+  enabled: true,
+  text: "18th July : Join us a for a special sealed format with the new Marvel set. Open six packs, build a deck, and compete against players in a tournament",
+  ctaText: "Sign up",
+  ctaHref: "mtg.reroll.in/tix",
 } as const;
