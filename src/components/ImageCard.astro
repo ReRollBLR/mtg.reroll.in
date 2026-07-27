@@ -1,0 +1,32 @@
+---
+/**
+ * Minimal MTG card: title bar + full-bleed image, nothing else. Shares the
+ * same frame chrome as EventCard but skips the type line / text box / CTA —
+ * for cards that are just "a picture with a title" (e.g. a schedule graphic).
+ */
+import ManaPips from "./ManaPips.astro";
+
+interface Props {
+  title: string;
+  image: string;
+}
+
+const { title, image } = Astro.props;
+---
+
+<article class="mtg-card w-full" style="--card-grad:linear-gradient(150deg, var(--color-mtg-red-light), var(--color-mtg-red) 48%, var(--color-mtg-red-dark) 82%, var(--color-mtg-red-deep))">
+  <div class="mtg-card__frame">
+    <!-- Title plate -->
+    <div class="mtg-card__plate mtg-card__titlebar flex items-center justify-between gap-2 px-3.5 py-2.5">
+      <h3 class="min-w-0 truncate font-serif-title font-bold uppercase tracking-tight text-base md:text-lg leading-tight gold-foil-text">
+        {title}
+      </h3>
+      <span class="shrink-0"><ManaPips pulse size={13} /></span>
+    </div>
+
+    <!-- Art window — fills the rest of the card -->
+    <div class="mtg-card__art mtg-card__art--contain mtg-card__art--fill flex items-center justify-center">
+      <img src={image} alt={`${title} art`} fetchpriority="high" />
+    </div>
+  </div>
+</article>

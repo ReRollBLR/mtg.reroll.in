@@ -47,19 +47,10 @@ export interface RawEvent {
   venue: string;
 }
 
-/**
- * Event "type" → drives the MTG card's outer frame gradient (§7).
- * Classified from a keyword in the title (the Magic color pie = canon).
- *   show     (default) → gold→brown
- *   jam      (title contains "jam") → green
- *   workshop (title contains "workshop") → blue, and FILTERED OUT of the listing
- */
-export type EventType = "show" | "jam" | "workshop";
+/** Event "type" → drives the MTG card's outer frame gradient (§7). Only "show" is in use. */
+export type EventType = "show";
 
-export function classifyEvent(e: RawEvent): EventType {
-  const t = e.title.toLowerCase();
-  if (t.includes("workshop")) return "workshop";
-  if (t.includes("jam")) return "jam";
+export function classifyEvent(_e: RawEvent): EventType {
   return "show";
 }
 
@@ -145,8 +136,6 @@ async function fetchOverrides(): Promise<{ dateLine?: string; url?: string }> {
  * updates the event's **date/time** and **ticket link** (from its first entry);
  * all other fields stay fixed. On empty feed / fetch error, the committed
  * values are kept unchanged, so the page is never empty (§11).
- *
- * Workshops are filtered out of the listing (§7).
  */
 export async function getEvents(): Promise<RawEvent[]> {
   const { dateLine, url } = await fetchOverrides();
@@ -155,6 +144,5 @@ export async function getEvents(): Promise<RawEvent[]> {
     dateLine: dateLine ?? fallbackEvent.dateLine,
     url: url ?? fallbackEvent.url,
   };
-  const listed = [event].filter((e) => classifyEvent(e) !== "workshop");
-  return listed.length > 0 ? listed : [fallbackEvent];
+  return [event];
 }

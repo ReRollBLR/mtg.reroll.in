@@ -14,26 +14,26 @@ interface Props {
 
 const { event } = Astro.props;
 
-// §7 type → outer frame gradient (the Magic color pie, polychrome inside the frame only)
-const typeGrad: Record<EventCard["type"], string> = {
-  show: "linear-gradient(150deg, var(--color-mtg-red-light), var(--color-mtg-red) 48%, var(--color-mtg-red-dark) 82%, var(--color-mtg-red-deep))", // red frame (default)
-  jam: "linear-gradient(150deg, #5cc488, #2f7d4f 55%, #143a26)",     // green
-  workshop: "linear-gradient(150deg, #5fa3e0, #2a6db0 55%, #112f4e)",// blue (normally filtered out)
-};
-const typeLabel: Record<EventCard["type"], string> = {
-  show: "Event",
-  jam: "Jam",
-  workshop: "Workshop",
-};
+// Outer frame gradient — red by default (the Magic color pie, polychrome
+// inside the frame only). A custom `frameColor` hex (event-override.json)
+// recolors it: light/dark/deep shades are derived via color-mix, keeping
+// the same beveled 4-stop look instead of flattening to one color.
+const defaultGrad =
+  "linear-gradient(150deg, var(--color-mtg-red-light), var(--color-mtg-red) 48%, var(--color-mtg-red-dark) 82%, var(--color-mtg-red-deep))";
+let frameGrad: string = defaultGrad;
+if (event.frameColor) {
+  const c = event.frameColor;
+  frameGrad = `linear-gradient(150deg, color-mix(in srgb, ${c} 70%, white), ${c} 48%, color-mix(in srgb, ${c} 70%, black) 82%, color-mix(in srgb, ${c} 45%, black))`;
+}
 ---
 
-<article class="mtg-card w-full" style={`--card-grad:${typeGrad[event.type]}`}>
+<article class="mtg-card w-full" style={`--card-grad:${frameGrad}`}>
   <!-- The colored frame skeleton. Each panel below is an embossed plate that
        sits ON this gradient, so the frame color shows through the gaps. -->
   <div class="mtg-card__frame">
     <!-- Title plate -->
     <div class="mtg-card__plate mtg-card__titlebar flex items-center justify-between gap-2 px-3.5 py-2.5">
-      <h3 class={`min-w-0 truncate font-serif-title font-bold uppercase tracking-tight text-base md:text-lg leading-tight ${event.type === 'show' ? 'gold-foil-text' : 'text-mtg-red-ember'}`}>
+      <h3 class="min-w-0 truncate font-serif-title font-bold uppercase tracking-tight text-base md:text-lg leading-tight gold-foil-text">
         {event.title}
       </h3>
       <!-- All five WUBRG mana symbols — a five-color "every color / everyone
@@ -42,7 +42,7 @@ const typeLabel: Record<EventCard["type"], string> = {
     </div>
 
     <!-- Art window — framed like a real card's art box -->
-    <div class="mtg-card__art aspect-[16/9] flex items-center justify-center">
+    <div class:list={["mtg-card__art aspect-[16/9] flex items-center justify-center", { "mtg-card__art--contain": event.image?.includes("secrets-of-strixhaven") }]}>
       {event.image ? (
         <img src={event.image} alt={`${event.title} art`} fetchpriority="high" />
       ) : (
@@ -56,7 +56,7 @@ const typeLabel: Record<EventCard["type"], string> = {
         {event.date}
       </span>
       <span class="font-sans-ui text-text-parchment-muted text-[0.6rem] uppercase tracking-[0.16em]">
-        {typeLabel[event.type]}
+        Event
       </span>
     </div>
 
@@ -73,9 +73,13 @@ const typeLabel: Record<EventCard["type"], string> = {
         </a>
       </p>
       <div class="h-px w-full bg-mtg-red-light/20 my-3"></div>
-      <p class="font-serif-body text-[1.02rem] leading-snug text-text-parchment">
-        {event.blurb}
-      </p>
+      <div class="flex flex-col gap-2">
+        {event.blurb.split("\n").map((line: string) => line.trim()).filter(Boolean).map((line: string) => (
+          <p class="font-serif-body text-[1.02rem] leading-snug text-text-parchment">
+            {line}
+          </p>
+        ))}
+      </div>
 
       <!-- The CTA button — the card body ends here. -->
       <div class="mt-auto pt-4 flex flex-col gap-3">

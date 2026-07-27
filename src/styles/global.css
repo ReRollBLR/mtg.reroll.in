@@ -278,6 +278,18 @@ html, body {
   padding: 14px 18px;
 }
 
+/* Contain variant — a poster/key-art image that isn't natively 16/9 (e.g. a
+   set promo). `contain` keeps the whole image visible instead of cropping it. */
+.mtg-card__art--contain img {
+  object-fit: contain;
+}
+
+/* Fill variant — art window grows to take all remaining frame height instead
+   of a fixed 16/9 band (image-only cards with no type line / text box). */
+.mtg-card__art--fill {
+  flex: 1;
+}
+
 /* Flame variant — a tall, narrow emblem (MTG flame). Scale it up so it reads
    as a deliberate centered mark, not a tiny icon lost in the 16/9 window. */
 .mtg-card__art--flame img {

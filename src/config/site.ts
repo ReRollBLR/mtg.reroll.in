@@ -9,6 +9,14 @@
  */
 
 import { getEvents, classifyEvent, type EventType } from "../data/event";
+import eventOverride from "../data/event-override.json";
+
+/**
+ * Default blurb shown on the event card when `event-override.json` has no
+ * `text` set — keeps the card from ever looking empty/unfinished.
+ */
+const DEFAULT_BLURB =
+  "Join the only (as far as we know) MTG group in Bangalore for a day of Magic. Beginners and veterans welcome — bring a deck or borrow one!";
 
 /** Standalone links used across the site (§11 config object). */
 export const links = {
@@ -32,10 +40,12 @@ export interface EventCard {
   ctaText: string;
   ctaHref: string;
   learnMore: string;
+  /** Overrides the frame's base color (hex) for "show"-type cards. */
+  frameColor?: string;
 }
 
 /**
- * Every listed event as a card view-model (workshops already filtered out).
+ * Every listed event as a card view-model.
  * Async: `getEvents()` fetches the live feed at build time. `index.astro`
  * awaits this in its frontmatter.
  */
@@ -46,11 +56,12 @@ export async function getEventCards(): Promise<EventCard[]> {
     type: classifyEvent(e),
     date: e.dateLine,
     venue: e.venue,
-    blurb: e.excerpt,
-    image: e.image_url,
+    blurb: eventOverride.text || DEFAULT_BLURB,
+    image: eventOverride.image || e.image_url,
     ctaText: "Buy Tickets",
     ctaHref: e.url || links.district, // District ticket link is the fallback CTA
     learnMore: e.learn_more,
+    frameColor: eventOverride.color || undefined,
   }));
 }
 

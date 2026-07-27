@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import EventCard from "../components/EventCard.astro";
+import ImageCard from "../components/ImageCard.astro";
 import CodeOfConduct from "../components/CodeOfConduct.astro";
 import FaqCard from "../components/FaqCard.astro";
 import SocialPacks from "../components/SocialPacks.astro";
@@ -22,9 +23,15 @@ const events = await getEventCards();
   <!-- Event card(s) + Code of Conduct card, side by side -->
   <section class="w-full grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
     {events.length > 0 ? (
-      events.map((event) => (
-        <div class="flex"><EventCard event={event} /></div>
-      ))
+      <>
+        {events.map((event) => (
+          <div class="flex"><EventCard event={event} /></div>
+        ))}
+        <!-- August schedule — image-only card, no CTA/venue -->
+        <div class="flex">
+          <ImageCard title="August Schedule" image="/images/schedule.png" />
+        </div>
+      </>
     ) : (
       <div>
         <div class="callout-dashed-gold text-center px-6 py-10">
