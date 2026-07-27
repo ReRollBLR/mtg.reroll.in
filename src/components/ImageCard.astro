@@ -3,6 +3,8 @@
  * Minimal MTG card: title bar + full-bleed image, nothing else. Shares the
  * same frame chrome as EventCard but skips the type line / text box / CTA —
  * for cards that are just "a picture with a title" (e.g. a schedule graphic).
+ *
+ * Clicking the art opens it fullscreen in a <dialog> lightbox.
  */
 import ManaPips from "./ManaPips.astro";
 
@@ -12,6 +14,10 @@ interface Props {
 }
 
 const { title, image } = Astro.props;
+
+// Unique per-instance id (in case this component is ever rendered more than
+// once on a page) for the lightbox dialog + its open trigger.
+const dialogId = `imgcard-lightbox-${image.replace(/[^a-zA-Z0-9]/g, "-")}`;
 ---
 
 <article class="mtg-card w-full" style="--card-grad:linear-gradient(150deg, var(--color-mtg-red-light), var(--color-mtg-red) 48%, var(--color-mtg-red-dark) 82%, var(--color-mtg-red-deep))">
@@ -24,9 +30,85 @@ const { title, image } = Astro.props;
       <span class="shrink-0"><ManaPips pulse size={13} /></span>
     </div>
 
-    <!-- Art window — fills the rest of the card -->
-    <div class="mtg-card__art mtg-card__art--contain mtg-card__art--fill flex items-center justify-center">
+    <!-- Art window — fills the rest of the card; click to view fullscreen -->
+    <button
+      type="button"
+      class="mtg-card__art mtg-card__art--contain mtg-card__art--fill imgcard-art-btn flex items-center justify-center"
+      data-lightbox-open={dialogId}
+      aria-label={`View ${title} fullscreen`}
+    >
       <img src={image} alt={`${title} art`} fetchpriority="high" />
-    </div>
+    </button>
   </div>
 </article>
+
+<dialog id={dialogId} class="imgcard-lightbox">
+  <button type="button" class="imgcard-lightbox__close" data-lightbox-close={dialogId} aria-label="Close">✕</button>
+  <img src={image} alt={`${title} art, fullscreen`} />
+</dialog>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-lightbox-open]").forEach((btn) => {
+    const id = btn.dataset.lightboxOpen;
+    const dialog = id ? document.getElementById(id) as HTMLDialogElement | null : null;
+    if (!dialog) return;
+    btn.addEventListener("click", () => dialog.showModal());
+    dialog.querySelector("[data-lightbox-close]")?.addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+  });
+</script>
+
+<style>
+  .imgcard-art-btn {
+    appearance: none;
+    border: 0;
+    padding: 0;
+    cursor: zoom-in;
+  }
+
+  .imgcard-lightbox {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin: 0;
+    transform: translate(-50%, -50%);
+    width: 95vw;
+    height: 95vh;
+    max-width: none;
+    max-height: none;
+    border: 0;
+    border-radius: 10px;
+    padding: 0;
+    background: #0b0705;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  }
+  .imgcard-lightbox::backdrop {
+    background: rgba(0, 0, 0, 0.85);
+  }
+  .imgcard-lightbox img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .imgcard-lightbox__close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 1;
+    appearance: none;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 2.25rem;
+    height: 2.25rem;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .imgcard-lightbox__close:hover {
+    background: rgba(0, 0, 0, 0.75);
+  }
+</style>
