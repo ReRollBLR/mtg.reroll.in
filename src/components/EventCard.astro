@@ -25,6 +25,20 @@ if (event.frameColor) {
   const c = event.frameColor;
   frameGrad = `linear-gradient(150deg, color-mix(in srgb, ${c} 70%, white), ${c} 48%, color-mix(in srgb, ${c} 70%, black) 82%, color-mix(in srgb, ${c} 45%, black))`;
 }
+
+// Blurb lines may contain a bare URL (e.g. a banlist link) — auto-linkify it
+// rather than requiring HTML/markdown in the JSON.
+function linkifySegments(line: string): Array<{ text: string; href?: string }> {
+  const parts = line.split(/(https?:\/\/[^\s]+)/g);
+  return parts.filter(Boolean).map((part) => (/^https?:\/\//.test(part) ? { text: part, href: part } : { text: part }));
+}
+const blurbLines = event.blurb.split("\n").map((line: string) => line.trim()).filter(Boolean);
+
+// Long blurbs are clamped to a fixed height so every card in the grid stays
+// the same size; "Read more" opens the full text in a dialog instead.
+const BLURB_CLAMP_THRESHOLD = 220; // chars — past this, the card clamps + shows Read more
+const isLongBlurb = event.blurb.length > BLURB_CLAMP_THRESHOLD;
+const blurbDialogId = `blurb-${event.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 ---
 
 <article class="mtg-card w-full" style={`--card-grad:${frameGrad}`}>
@@ -73,13 +87,35 @@ if (event.frameColor) {
         </a>
       </p>
       <div class="h-px w-full bg-mtg-red-light/20 my-3"></div>
-      <div class="flex flex-col gap-3">
-        {event.blurb.split("\n").map((line: string) => line.trim()).filter(Boolean).map((line: string) => (
+      <div class:list={["flex flex-col gap-3", { "blurb-clamp": isLongBlurb }]}>
+        {blurbLines.map((line: string) => (
           <p class="font-serif-body text-[1.08rem] leading-relaxed tracking-[0.005em] text-text-parchment">
-            {line}
+            {linkifySegments(line).map((seg) =>
+              seg.href ? (
+                <a
+                  href={seg.href}
+                  target="_blank"
+                  rel="noopener"
+                  class="underline underline-offset-2 decoration-mtg-red-light/50 text-mtg-red-ember hover:text-mtg-red-light transition-colors break-all"
+                >
+                  {seg.text}
+                </a>
+              ) : (
+                seg.text
+              )
+            )}
           </p>
         ))}
       </div>
+      {isLongBlurb && (
+        <button
+          type="button"
+          class="read-more-btn mt-2 self-start font-sans-ui text-[0.7rem] font-bold uppercase tracking-[0.12em] text-mtg-red-ember hover:text-mtg-red-light transition-colors"
+          data-lightbox-open={blurbDialogId}
+        >
+          Read more →
+        </button>
+      )}
 
       <!-- The CTA button — the card body ends here. -->
       <div class="mt-auto pt-4 flex flex-col gap-3">
@@ -108,3 +144,49 @@ if (event.frameColor) {
     </a>
   )}
 </article>
+
+{isLongBlurb && (
+  <dialog id={blurbDialogId} class="blurb-dialog">
+    <button type="button" class="blurb-dialog__close" data-lightbox-close={blurbDialogId} aria-label="Close">✕</button>
+    <h3 class="font-serif-title font-bold uppercase tracking-tight text-lg text-mtg-red-ember mb-4">
+      {event.title}
+    </h3>
+    <div class="flex flex-col gap-3">
+      {blurbLines.map((line: string) => (
+        <p class="font-serif-body text-[1.05rem] leading-relaxed text-text-ink">
+          {linkifySegments(line).map((seg) =>
+            seg.href ? (
+              <a
+                href={seg.href}
+                target="_blank"
+                rel="noopener"
+                class="underline underline-offset-2 decoration-brand-red/40 text-brand-red hover:text-brand-red-dark transition-colors break-all"
+              >
+                {seg.text}
+              </a>
+            ) : (
+              seg.text
+            )
+          )}
+        </p>
+      ))}
+    </div>
+  </dialog>
+)}
+
+<script>
+  // Guarded with a data attribute: EventCard/ImageCard both ship this exact
+  // lightbox-binding script, and the page may render several of each — this
+  // stops a button from getting the click listener attached more than once.
+  document.querySelectorAll<HTMLElement>("[data-lightbox-open]:not([data-lightbox-bound])").forEach((btn) => {
+    btn.dataset.lightboxBound = "true";
+    const id = btn.dataset.lightboxOpen;
+    const dialog = id ? document.getElementById(id) as HTMLDialogElement | null : null;
+    if (!dialog) return;
+    btn.addEventListener("click", () => dialog.showModal());
+    dialog.querySelector("[data-lightbox-close]")?.addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+  });
+</script>

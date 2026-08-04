@@ -48,7 +48,11 @@ const dialogId = `imgcard-lightbox-${image.replace(/[^a-zA-Z0-9]/g, "-")}`;
 </dialog>
 
 <script>
-  document.querySelectorAll<HTMLElement>("[data-lightbox-open]").forEach((btn) => {
+  // Guarded with a data attribute: EventCard/ImageCard both ship this exact
+  // lightbox-binding script, and the page may render several of each — this
+  // stops a button from getting the click listener attached more than once.
+  document.querySelectorAll<HTMLElement>("[data-lightbox-open]:not([data-lightbox-bound])").forEach((btn) => {
+    btn.dataset.lightboxBound = "true";
     const id = btn.dataset.lightboxOpen;
     const dialog = id ? document.getElementById(id) as HTMLDialogElement | null : null;
     if (!dialog) return;

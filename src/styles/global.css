@@ -316,6 +316,63 @@ html, body {
     var(--color-card-face);
 }
 
+/* Blurb clamp — caps a long event description to a fixed number of visual
+   lines so every card in the grid stays the same height; paired with a
+   "Read more" button that opens the full text in .blurb-dialog. */
+.blurb-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+  overflow: hidden;
+}
+
+.read-more-btn {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.blurb-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  width: min(90vw, 640px);
+  max-height: min(85vh, 640px);
+  overflow-y: auto;
+  overflow-wrap: break-word;
+  border: 0;
+  border-radius: 12px;
+  padding: 1.75rem;
+  background: var(--color-bg-paper, #faf6f0);
+  color: var(--color-text-ink, #1e1610);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+}
+.blurb-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+.blurb-dialog__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  appearance: none;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  background: rgba(0, 0, 0, 0.04);
+  color: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.blurb-dialog__close:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
 /* Glossy red bevelled "tap" button (Buy Ticket) */
 .btn-tap {
   position: relative;
