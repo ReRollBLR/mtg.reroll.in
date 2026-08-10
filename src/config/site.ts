@@ -8,7 +8,7 @@
  * 2. `links` / `socials` hold the site's profile + invite URLs.
  */
 
-import { getEvents, classifyEvent, type EventType } from "../data/event";
+import { getEvents, classifyEvent, shouldApplyOverride, type EventType } from "../data/event";
 import eventOverride from "../data/event-override.json";
 
 /**
@@ -42,6 +42,8 @@ export interface EventCard {
   learnMore: string;
   /** Overrides the frame's base color (hex) for "show"-type cards. */
   frameColor?: string;
+  /** How the art image fills its window — "cover" (default, crops to fill) or "contain" (shows the whole image). */
+  imageFit?: "cover" | "contain";
 }
 
 /**
@@ -50,18 +52,19 @@ export interface EventCard {
  * awaits this in its frontmatter.
  */
 export async function getEventCards(): Promise<EventCard[]> {
-  const events = await getEvents();
+  const [events, applyOverride] = await Promise.all([getEvents(), shouldApplyOverride()]);
   return events.map((e) => ({
     title: e.title,
     type: classifyEvent(e),
     date: e.dateLine,
     venue: e.venue,
-    blurb: eventOverride.text || DEFAULT_BLURB,
-    image: eventOverride.image || e.image_url,
+    blurb: (applyOverride && eventOverride.text) || DEFAULT_BLURB,
+    image: (applyOverride && eventOverride.image) || e.image_url,
     ctaText: "Buy Tickets",
     ctaHref: e.url || links.district, // District ticket link is the fallback CTA
     learnMore: e.learn_more,
-    frameColor: eventOverride.color || undefined,
+    frameColor: (applyOverride && eventOverride.color) || undefined,
+    imageFit: applyOverride && eventOverride.fit === "contain" ? "contain" : "cover",
   }));
 }
 

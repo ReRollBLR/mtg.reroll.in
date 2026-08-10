@@ -56,7 +56,7 @@ const blurbDialogId = `blurb-${event.title.toLowerCase().replace(/[^a-z0-9]+/g, 
     </div>
 
     <!-- Art window — framed like a real card's art box -->
-    <div class:list={["mtg-card__art aspect-[16/9] flex items-center justify-center", { "mtg-card__art--contain": event.image?.includes("secrets-of-strixhaven") }]}>
+    <div class:list={["mtg-card__art aspect-[16/9] flex items-center justify-center", { "mtg-card__art--contain": event.imageFit === "contain" }]}>
       {event.image ? (
         <img src={event.image} alt={`${event.title} art`} fetchpriority="high" />
       ) : (
