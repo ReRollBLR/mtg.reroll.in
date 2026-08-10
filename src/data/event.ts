@@ -91,9 +91,15 @@ function formatDateLine(iso: string): string {
 // Formats event-override.json's `date` ("YYYY-MM-DD") + `time` ("HH:MM", 24h)
 // into the same style as formatDateLine, without needing a full ISO timestamp
 // from the feed. `time` defaults to 18:00 (6pm) when blank/invalid.
+//
+// The +05:30 suffix is required: without an explicit offset, `new Date(...)`
+// parses "HH:MM" as local time on whatever machine runs the build (UTC on
+// GitHub Actions runners) — so "18:00" would get interpreted as 18:00 UTC,
+// then displayed as 23:30 IST. Anchoring to +05:30 makes "18:00" always mean
+// 6pm IST regardless of the build machine's own timezone.
 function formatDateOnly(isoDate: string, time: string | undefined): string {
   const validTime = time && /^\d{2}:\d{2}$/.test(time) ? time : "18:00";
-  const date = new Date(`${isoDate}T${validTime}:00`);
+  const date = new Date(`${isoDate}T${validTime}:00+05:30`);
   if (isNaN(date.getTime())) return isoDate;
   return date.toLocaleDateString("en-IN", {
     timeZone: "Asia/Kolkata",
