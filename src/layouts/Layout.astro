@@ -8,12 +8,15 @@ interface Props {
   title: string;
   description?: string;
   tagline?: string;
+  /** Hides the "Magic: The Gathering / Bangalore" masthead heading + tagline. Defaults to shown. */
+  showHeading?: boolean;
 }
 
 const {
   title,
   description = "The only (as far as we know) mtg group in Bangalore!Beginners and veterans welcome!",
   tagline,
+  showHeading = true,
 } = Astro.props;
 ---
 
@@ -101,14 +104,16 @@ const {
         class="w-full max-w-6xl text-text-ink p-2 md:p-6 relative"
       >
         <header class="flex flex-col items-center justify-center mb-8 md:mb-12 border-b border-brand-red/20 pb-8 text-center">
-          <a href="/" class="group flex flex-col items-center">
-            <h1
-              id="site-title"
-              class="font-serif-title title-glow uppercase font-bold tracking-[0.12em] text-3xl md:text-5xl leading-tight transition-transform duration-300 group-hover:scale-[1.02]"
-            >
-              Magic: The Gathering<br /><span class="text-xl md:text-3xl tracking-[0.2em]">Bangalore</span>
-            </h1>
-          </a>
+          {showHeading && (
+            <a href="/" class="group flex flex-col items-center">
+              <h1
+                id="site-title"
+                class="font-serif-title title-glow uppercase font-bold tracking-[0.12em] text-3xl md:text-5xl leading-tight transition-transform duration-300 group-hover:scale-[1.02]"
+              >
+                Magic: The Gathering<br /><span class="text-xl md:text-3xl tracking-[0.2em]">Bangalore</span>
+              </h1>
+            </a>
+          )}
           {tagline && (
             <p class="font-serif-body text-sm md:text-base italic text-text-ink-muted mt-4 max-w-xl leading-relaxed">
               {tagline}
