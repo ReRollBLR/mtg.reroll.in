@@ -9,9 +9,10 @@
     "preview": "astro preview",
     "astro": "astro"
   },
+
   "dependencies": {
     "@saeris/typeface-beleren-bold": "^1.0.1",
-    "astro": "^7.1.2"
+    "astro": "^7.2.4"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
