@@ -58,7 +58,11 @@ const blurbDialogId = `blurb-${event.title.toLowerCase().replace(/[^a-z0-9]+/g, 
     <!-- Art window — framed like a real card's art box -->
     <div class:list={["mtg-card__art aspect-[16/9] flex items-center justify-center", { "mtg-card__art--contain": event.imageFit === "contain" }]}>
       {event.image ? (
-        <img src={event.image} alt={`${event.title} art`} fetchpriority="high" />
+        <img
+          src={event.image}
+          alt={`${event.title} - Magic: The Gathering meetup in Bangalore, Bengaluru`}
+          fetchpriority="high"
+        />
       ) : (
         <span class="text-mtg-red-light/40 text-5xl select-none" aria-hidden="true">✦</span>
       )}

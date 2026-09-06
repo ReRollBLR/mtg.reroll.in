@@ -110,19 +110,40 @@ const faqs: { q: string; a: Segment[][] }[] = [
     ],
   },
 ];
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((item) => ({
+    "@type": "Question",
+    name: item.q,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.a
+        .map((p) =>
+          p
+            .map((seg) => (typeof seg === "string" ? seg : seg.text))
+            .join("")
+        )
+        .join(" "),
+    },
+  })),
+};
 ---
 
 <Layout
   title="FAQ"
-  description="Frequently asked questions about Magic: The Gathering meetups with ReRoll Board Games in Bangalore — for new and experienced players alike."
-  tagline="Everything a newcomer (or a returning planeswalker) tends to ask, answered."
+  seoTitle="Magic: The Gathering Bangalore FAQ | MTG Rules, Venue & Decks Bengaluru"
+  description="Frequently asked questions about Magic: The Gathering meetups in Bangalore / Bengaluru. Where to play, ticket prices, Commander decks, Jumpstart for beginners & card lists."
+  tagline="Everything a newcomer or returning planeswalker in Bangalore / Bengaluru needs to know."
+  schema={faqSchema}
 >
   <section class="w-full max-w-3xl mx-auto">
     <h2 class="font-serif-title title-glow text-center text-2xl md:text-3xl font-bold uppercase tracking-[0.14em] mb-3">
-      Frequently Asked Questions
+      Frequently Asked Questions — Bangalore MTG
     </h2>
     <p class="text-center font-serif-body italic text-text-ink-muted mb-10">
-      Can't find your answer? Reach out on any of our socials.
+      Can't find your answer? Reach out on any of our Bangalore socials or join us this Saturday.
     </p>
 
     <div class="flex flex-col gap-5">

@@ -5,26 +5,45 @@ import { announcement } from "../config/announcement";
 import { links } from "../config/site";
 
 interface Props {
-  title: string;
+  title?: string;
+  seoTitle?: string;
   description?: string;
   tagline?: string;
   /** Hides the "Magic: The Gathering / Bangalore" masthead heading + tagline. Defaults to shown. */
   showHeading?: boolean;
+  image?: string;
+  schema?: Record<string, any> | Array<Record<string, any>>;
 }
 
 const {
   title,
-  description = "The only (as far as we know) mtg group in Bangalore!Beginners and veterans welcome!",
+  seoTitle,
+  description = "Join Bangalore's Magic: The Gathering (MTG) community! Weekly Saturday meetups in Indiranagar, Bengaluru. Casual Commander (EDH), Jumpstart for beginners & deck trading with ReRoll Board Games.",
   tagline,
   showHeading = true,
+  image = "/images/logo-header.png",
+  schema,
 } = Astro.props;
+
+const siteUrl = Astro.site ? Astro.site.toString().replace(/\/$/, "") : "https://mtg.reroll.in";
+const canonicalURL = new URL(Astro.url.pathname, siteUrl).href;
+const ogImageURL = new URL(image, siteUrl).href;
+
+const pageTitle =
+  seoTitle ||
+  (title && title !== "Home"
+    ? `${title} | Magic: The Gathering Bangalore - MTG ReRoll`
+    : "Magic: The Gathering Bangalore | MTG Meetups & Community Bengaluru | ReRoll");
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en-IN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalURL} />
 
     <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
@@ -33,23 +52,107 @@ const {
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- SEO -->
-    <title>{title} | MTG Reroll</title>
+    <!-- Primary SEO Meta Tags -->
+    <title>{pageTitle}</title>
+    <meta name="title" content={pageTitle} />
     <meta name="description" content={description} />
-    <meta name="author" content="MTG Reroll" />
+    <meta name="author" content="ReRoll Board Games" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta
+      name="keywords"
+      content="Magic The Gathering Bangalore, MTG Bangalore, MTG Bengaluru, Magic The Gathering Bengaluru, MTG India, Commander Bangalore, EDH Bangalore, Tabletop Games Bangalore, Board Games Bengaluru, ReRoll Board Games, Underline Center Indiranagar, Trading Card Games Bangalore, Learn MTG Bangalore, MTG Draft Bangalore"
+    />
 
-    <!-- Open Graph -->
+    <!-- Geo & Local SEO for Bangalore / Bengaluru audience -->
+    <meta name="geo.region" content="IN-KA" />
+    <meta name="geo.placename" content="Bengaluru, Karnataka, India" />
+    <meta name="geo.position" content="12.9784;77.6408" />
+    <meta name="ICBM" content="12.9784, 77.6408" />
+
+    <!-- Open Graph / Facebook / WhatsApp / Discord -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content={`${title} | MTG Reroll`} />
+    <meta property="og:site_name" content="MTG ReRoll Bangalore" />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content="https://mtg.reroll.in" />
-    <meta property="og:image" content="/images/logo-header.png" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:image:alt" content="Magic: The Gathering Bangalore Community - ReRoll Board Games" />
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary" />
-    <meta property="twitter:title" content={`${title} | MTG Reroll`} />
-    <meta property="twitter:description" content={description} />
-    <meta property="twitter:image" content="/images/logo-header.png" />
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageURL} />
+    <meta name="twitter:image:alt" content="Magic: The Gathering Bangalore Community - ReRoll Board Games" />
+
+    <!-- Structured Data (JSON-LD): Organization & WebSite -->
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": ["CommunityOrganization", "LocalBusiness"],
+            "@id": "https://mtg.reroll.in/#organization",
+            "name": "Magic: The Gathering Bangalore - MTG ReRoll",
+            "alternateName": [
+              "MTG Bangalore",
+              "MTG Bengaluru",
+              "Magic The Gathering Bengaluru",
+              "ReRoll MTG"
+            ],
+            "description": "Bangalore's dedicated community for Magic: The Gathering (MTG) players. Weekly Saturday meetups, Commander (EDH) pods, beginner Jumpstart sessions, and deck trading at Underline Center, Indiranagar, Bengaluru.",
+            "url": "https://mtg.reroll.in",
+            "logo": `${siteUrl}/images/logo-header.png`,
+            "image": `${siteUrl}/images/mtg-art.webp`,
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Underline Center, Indiranagar",
+              "addressLocality": "Bengaluru",
+              "addressRegion": "Karnataka",
+              "postalCode": "560038",
+              "addressCountry": "IN"
+            },
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": 12.9784,
+              "longitude": 77.6408
+            },
+            "parentOrganization": {
+              "@type": "Organization",
+              "name": "ReRoll Board Games",
+              "url": "https://reroll.in"
+            },
+            "sameAs": [
+              "https://reroll.in",
+              "https://www.instagram.com/mtg_bangalore/",
+              "https://reroll.in/chat",
+              "https://reroll.in/whatsapp-mtg",
+              "https://underline.center/t/magic-the-gathering-with-reroll-board-games/130"
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://mtg.reroll.in/#website",
+            "url": "https://mtg.reroll.in",
+            "name": "Magic: The Gathering Bangalore | MTG ReRoll",
+            "description": "Magic: The Gathering community and weekly meetups in Bangalore / Bengaluru, India.",
+            "publisher": {
+              "@id": "https://mtg.reroll.in/#organization"
+            },
+            "inLanguage": "en-IN"
+          }
+        ]
+      })}
+    />
+
+    {schema && (
+      <script
+        type="application/ld+json"
+        set:html={JSON.stringify(schema)}
+      />
+    )}
 
     <!-- Google Fonts Preconnect and Asynchronous Load -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -124,9 +227,12 @@ const {
         <main><slot /></main>
 
         <footer class="mt-12 md:mt-16 pt-8 border-t border-brand-red/20 text-center">
-          <div class="flex flex-col items-center gap-3">
+          <div class="flex flex-col items-center gap-2">
             <p class="font-sans-ui text-xs tracking-wider text-text-ink-muted uppercase">
-              © {new Date().getFullYear()} ReRoll Board Games
+              © {new Date().getFullYear()} ReRoll Board Games • Magic: The Gathering Bangalore / Bengaluru
+            </p>
+            <p class="font-sans-ui text-[0.72rem] text-text-ink-muted/80">
+              Weekly MTG Meetups at Underline Center, Indiranagar, Bengaluru, Karnataka, India
             </p>
           </div>
         </footer>

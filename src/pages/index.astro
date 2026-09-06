@@ -9,31 +9,77 @@ import { getEventCards } from "../config/site";
 
 // Build-time fetch of the live event feed (falls back to the canonical event).
 const events = await getEventCards();
+
+// Structured Event Schema for Google Event rich snippets
+const featuredEvent = events[0];
+const eventSchema = featuredEvent
+  ? {
+      "@context": "https://schema.org",
+      "@type": "Event",
+      "name": `${featuredEvent.title} - Magic: The Gathering Bangalore Meetup`,
+      "description": `${featuredEvent.blurb} Weekly MTG community meetup in Bengaluru organized by ReRoll Board Games. Casual Commander (EDH), Jumpstart for beginners, and card trading.`,
+      "image": "https://mtg.reroll.in/images/mtg-art.webp",
+      "eventStatus": "https://schema.org/EventScheduled",
+      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+      "location": {
+        "@type": "Place",
+        "name": featuredEvent.venue || "Underline Center, Indiranagar",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Underline Center, Indiranagar",
+          "addressLocality": "Bengaluru",
+          "addressRegion": "Karnataka",
+          "postalCode": "560038",
+          "addressCountry": "IN",
+        },
+      },
+      "organizer": {
+        "@type": "Organization",
+        "name": "ReRoll Board Games",
+        "url": "https://reroll.in",
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": featuredEvent.ctaHref,
+        "price": "349",
+        "priceCurrency": "INR",
+        "availability": "https://schema.org/InStock",
+        "validFrom": "2024-01-01",
+      },
+    }
+  : undefined;
 ---
 
 <Layout
-  title="Home"
-  tagline="Brought to you by ReRoll Board Games. Extremely beginner-friendly — come along even if you don't know anything about MTG, we'll teach you."
+  seoTitle="Magic: The Gathering Bangalore | MTG Meetups & Community Bengaluru | ReRoll"
+  description="Join Bangalore's Magic: The Gathering (MTG) community! Weekly Saturday meetups in Indiranagar, Bengaluru. Casual Commander, Jumpstart for beginners & deck trading with ReRoll Board Games."
+  tagline="Bangalore's dedicated Magic: The Gathering community. Weekly Saturday meetups at Underline Center, Indiranagar, Bengaluru. Extremely beginner-friendly — come along even if you don't know anything about MTG, we'll teach you!"
+  schema={eventSchema}
 >
-  <!-- Gold subheading in the masthead (shared bone) -->
-  <p slot="masthead-extra" class="font-serif-title text-mtg-gold uppercase tracking-[0.2em] text-xs md:text-sm font-bold mt-7">
-    Upcoming Events
-  </p>
+  <!-- Upcoming Events Section Heading -->
+  <div class="text-center mt-3 mb-6">
+    <h2 class="font-serif-title text-mtg-gold uppercase tracking-[0.2em] text-xs md:text-sm font-bold">
+      Upcoming Events &amp; Community Meetups in Bangalore
+    </h2>
+    <p class="font-serif-body italic text-text-ink-muted text-sm mt-1">
+      Every Saturday at Underline Center, Indiranagar, Bengaluru
+    </p>
+  </div>
 
-  <!-- Event card(s) + Code of Conduct card, side by side -->
-  <section class="w-full grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+  <!-- 2x2 MTG Card Grid: Event, Schedule, FAQ, Code of Conduct -->
+  <section class="w-full max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-stretch mt-4">
     {events.length > 0 ? (
       <>
         {events.map((event) => (
-          <div class="flex"><EventCard event={event} /></div>
+          <div class="flex w-full"><EventCard event={event} /></div>
         ))}
-        <!-- September schedule — image-only card, no CTA/venue -->
-        <div class="flex">
-          <ImageCard title="Septmeber Schedule" image="/images/schedule.png" />
+        <!-- September schedule — image-only card with expander -->
+        <div class="flex w-full">
+          <ImageCard title="September Schedule" image="/images/schedule.png" />
         </div>
       </>
     ) : (
-      <div>
+      <div class="md:col-span-2">
         <div class="callout-dashed-gold text-center px-6 py-10">
           <p class="font-serif-title text-mtg-gold uppercase tracking-wide text-lg font-bold">
             No upcoming events
@@ -49,19 +95,19 @@ const events = await getEventCards();
     )}
 
     <!-- FAQ teaser, linking to the full /faq page -->
-    <div class="flex"><FaqCard /></div>
+    <div class="flex w-full"><FaqCard /></div>
 
-    <!-- Code of Conduct, next to the event card -->
-    <div class="flex"><CodeOfConduct /></div>
+    <!-- Code of Conduct, next to the FAQ card -->
+    <div class="flex w-full"><CodeOfConduct /></div>
   </section>
 
   <!-- Find us: the booster packs -->
   <section class="w-full mt-20 md:mt-28">
     <h2 class="font-serif-title title-glow text-center text-2xl md:text-3xl font-bold uppercase tracking-[0.14em]">
-      Find Us
+      Find Us in Bangalore
     </h2>
     <p class="text-center font-serif-body italic text-text-ink-muted mt-3 mb-8">
-      Crack open a pack.
+      Crack open a pack — connect with the Bengaluru MTG community on Discord, WhatsApp, and Instagram.
     </p>
     <SocialPacks />
   </section>

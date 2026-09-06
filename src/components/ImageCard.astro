@@ -37,14 +37,23 @@ const dialogId = `imgcard-lightbox-${image.replace(/[^a-zA-Z0-9]/g, "-")}`;
       data-lightbox-open={dialogId}
       aria-label={`View ${title} fullscreen`}
     >
-      <img src={image} alt={`${title} art`} fetchpriority="high" />
+      <img src={image} alt={`${title} - Magic: The Gathering Bangalore schedule poster`} fetchpriority="high" />
     </button>
   </div>
+
+  <!-- Collector line -->
+  <button
+    type="button"
+    class="mtg-card__collector text-right cursor-pointer bg-transparent border-0 w-full hover:text-mtg-red-ember transition-colors"
+    data-lightbox-open={dialogId}
+  >
+    Expand Poster ↗
+  </button>
 </article>
 
 <dialog id={dialogId} class="imgcard-lightbox">
   <button type="button" class="imgcard-lightbox__close" data-lightbox-close={dialogId} aria-label="Close">✕</button>
-  <img src={image} alt={`${title} art, fullscreen`} />
+  <img src={image} alt={`${title} - Magic: The Gathering Bangalore schedule poster full view`} />
 </dialog>
 
 <script>
