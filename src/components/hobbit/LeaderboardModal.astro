@@ -1,0 +1,122 @@
+---
+// src/components/hobbit/LeaderboardModal.astro
+---
+
+<div
+  id="leaderboard-modal"
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 backdrop-blur-md p-4 font-serif"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="standings-modal-title"
+>
+  <div class="relative w-full max-w-2xl max-h-[88vh] bg-[#120d09] border border-mtg-gold/50 rounded-xl shadow-2xl shadow-black flex flex-col overflow-hidden text-text-parchment">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-[#c9a84c]/30 bg-[#18110a] shrink-0">
+      <div class="flex items-center gap-3">
+        <svg class="w-5 h-5 text-mtg-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+          <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+          <path d="M4 22h16"></path>
+          <path d="M10 14.66V17c0 .55-.45 1-1 1H8v4h8v-4h-1c-.55 0-1-.45-1-1v-2.34"></path>
+          <path d="M6 2h12v7a6 6 0 0 1-12 0V2z"></path>
+        </svg>
+        <div>
+          <h2 id="standings-modal-title" class="text-base font-bold uppercase tracking-[0.16em] text-[#f3ecd8] font-serif-title">
+            Middle-Earth Standings
+          </h2>
+          <div class="text-xs text-text-parchment-muted font-serif-body italic">
+            Middle-Earth Tabletop Campaign • 2026
+          </div>
+        </div>
+      </div>
+      <button
+        id="close-leaderboard-btn"
+        class="inline-flex items-center gap-1.5 min-w-[44px] min-h-[44px] px-2.5 py-1 text-xs font-serif-title font-bold uppercase tracking-wider text-text-parchment-muted hover:text-mtg-gold transition-colors cursor-pointer rounded border border-transparent hover:border-mtg-gold/40 hover:bg-[#251d13]"
+        aria-label="Close standings modal"
+      >
+        <span class="text-[10px] tracking-widest text-text-parchment-muted/80">ESC</span>
+        <svg class="w-4 h-4 stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="flex border-b border-[#c9a84c]/20 bg-[#160f09] text-xs font-bold uppercase tracking-wider font-serif-title shrink-0">
+      <button
+        id="tab-commanders-btn"
+        class="flex-1 min-h-[44px] py-3 text-center border-b-2 border-mtg-gold text-mtg-gold transition-colors cursor-pointer"
+      >
+        Commanders Rank
+      </button>
+      <button
+        id="tab-chronicle-btn"
+        class="flex-1 min-h-[44px] py-3 text-center border-b-2 border-transparent text-text-parchment-muted hover:text-[#f3ecd8] transition-colors cursor-pointer"
+      >
+        War Chronicle
+      </button>
+      <button
+        id="tab-rules-btn"
+        class="flex-1 min-h-[44px] py-3 text-center border-b-2 border-transparent text-text-parchment-muted hover:text-[#f3ecd8] transition-colors cursor-pointer"
+      >
+        Campaign Rules
+      </button>
+    </div>
+
+    <!-- Tab Contents -->
+    <div class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
+      <!-- 1. Commanders Standings Tab -->
+      <div id="tab-commanders-content" class="space-y-3">
+        <div class="text-xs text-mtg-gold flex justify-between px-3 uppercase tracking-wider font-serif-title font-bold">
+          <span>Commander</span>
+          <div class="flex gap-10">
+            <span>Domains</span>
+            <span>Trials</span>
+          </div>
+        </div>
+        <div id="leaderboard-players-list" class="space-y-2">
+          <!-- Injected via client script -->
+        </div>
+      </div>
+
+      <!-- 2. War Chronicle Tab -->
+      <div id="tab-chronicle-content" class="hidden space-y-3">
+        <div id="chronicle-feed-list" class="space-y-2.5">
+          <!-- Injected via client script -->
+        </div>
+      </div>
+
+      <!-- 3. Campaign Rules Tab -->
+      <div id="tab-rules-content" class="hidden space-y-3.5 text-xs leading-relaxed font-serif-body">
+        <div class="p-4 rounded-lg bg-[#18110a] border border-mtg-gold/30 space-y-1.5">
+          <h3 class="font-bold text-sm text-mtg-gold font-serif-title">1. Choose Your Starting Domain</h3>
+          <p class="text-text-parchment">
+            Upon enlistment, claim a home sanctuary in one of the three starter realms: <strong>The Shire</strong>, <strong>Bree-land</strong>, or <strong>Gondor</strong>. Your campaign expedition begins here.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-lg bg-[#18110a] border border-mtg-gold/30 space-y-1.5">
+          <h3 class="font-bold text-sm text-mtg-gold font-serif-title">2. Tabletop Match Play</h3>
+          <p class="text-text-parchment">
+            Join tabletop MTG sessions. Craft commander decks to take on the thematic trials assigned to each territory on the map.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-lg bg-[#18110a] border border-mtg-gold/30 space-y-1.5">
+          <h3 class="font-bold text-sm text-mtg-gold font-serif-title">3. Arbitrator Review</h3>
+          <p class="text-text-parchment">
+            Submit your tabletop match slip on the territory card. Campaign Arbitrators review and stamp the play based on your table notes.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-lg bg-[#18110a] border border-mtg-gold/30 space-y-1.5">
+          <h3 class="font-bold text-sm text-mtg-gold font-serif-title">4. Territory Dominion</h3>
+          <p class="text-text-parchment">
+            Fulfill 2 trials in any realm to plant your banner! Across the tournament season, commanders compete to hold dominion over Middle-Earth.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

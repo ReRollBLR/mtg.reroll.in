@@ -32,7 +32,18 @@ jobs:
       # macOS/npm-11 and can omit Linux-only optional deps (npm/cli#4828), which
       # makes strict `npm ci` fail. `npm install` resolves platform deps on the runner.
       - run: npm install --no-audit --no-fund
-      - run: npm run build
+      # Ping Supabase to keep free-tier database active permanently on weekly cron
+      - name: Ping Supabase to prevent inactivity pause
+        run: |
+          curl -s -f -X GET "${{ secrets.PUBLIC_SUPABASE_URL || secrets.SUPABASE_URL || 'https://eitdawijfcvvcekcsrxm.supabase.co' }}/rest/v1/regions?select=id&limit=1" \
+            -H "apikey: ${{ secrets.PUBLIC_SUPABASE_API_KEY || secrets.PUBLIC_SUPABASE_PUBLISHABLE_KEY || secrets.PUBLIC_SUPABASE_ANON_KEY || secrets.SUPABASE_API_KEY }}" > /dev/null || true
+      - name: Build Astro site
+        run: npm run build
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL || secrets.SUPABASE_URL || 'https://eitdawijfcvvcekcsrxm.supabase.co' }}
+          PUBLIC_SUPABASE_API_KEY: ${{ secrets.PUBLIC_SUPABASE_API_KEY || secrets.PUBLIC_SUPABASE_PUBLISHABLE_KEY || secrets.PUBLIC_SUPABASE_ANON_KEY || secrets.SUPABASE_API_KEY }}
+          PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.PUBLIC_SUPABASE_API_KEY || secrets.PUBLIC_SUPABASE_PUBLISHABLE_KEY || secrets.PUBLIC_SUPABASE_ANON_KEY || secrets.SUPABASE_API_KEY }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_API_KEY || secrets.PUBLIC_SUPABASE_PUBLISHABLE_KEY || secrets.PUBLIC_SUPABASE_ANON_KEY || secrets.SUPABASE_API_KEY }}
       - uses: actions/upload-pages-artifact@v5
         with:
           path: ./dist

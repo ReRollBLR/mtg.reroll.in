@@ -1,0 +1,87 @@
+---
+// src/components/hobbit/ArbitratorPanel.astro
+---
+
+<aside
+  id="arbitrator-panel"
+  class="fixed top-0 left-0 z-50 h-full w-full sm:w-[500px] bg-[#120d09] border-r border-[#c9a84c]/50 shadow-[20px_0_60px_rgba(0,0,0,0.95)] transform -translate-x-full transition-transform duration-300 ease-out flex flex-col font-serif"
+  aria-label="Arbitrator Review Queue"
+>
+  <!-- Docket Header Bar -->
+  <div class="flex items-center justify-between px-5 py-3 border-b border-[#c9a84c]/30 bg-[#18110a] shrink-0 shadow-md">
+    <div class="flex items-center gap-2.5">
+      <svg class="w-4 h-4 text-mtg-gold stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+        <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+        <path d="M7 21h10"></path>
+        <path d="M12 3v18"></path>
+        <path d="M3 7h18"></path>
+      </svg>
+      <div class="flex items-center gap-2">
+        <span class="font-serif-title text-xs font-bold uppercase tracking-[0.18em] text-text-parchment">
+          Arbitrator Docket
+        </span>
+        <span id="arbitrator-pending-count-badge" class="px-2 py-0.5 rounded-full bg-[#c72d07]/20 border border-[#c72d07] text-[#ff7e70] text-[10px] font-bold font-serif-title">
+          0 Pending
+        </span>
+      </div>
+    </div>
+    
+    <button
+      id="close-arbitrator-btn"
+      class="inline-flex items-center gap-1.5 min-w-[44px] min-h-[44px] px-2.5 py-1 text-xs font-serif-title font-bold uppercase tracking-wider text-text-parchment-muted hover:text-mtg-gold transition-colors cursor-pointer rounded border border-transparent hover:border-mtg-gold/40 hover:bg-[#251d13]"
+      aria-label="Close arbitrator panel"
+    >
+      <span class="text-[10px] tracking-widest text-text-parchment-muted/80">ESC</span>
+      <svg class="w-4 h-4 stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Review List -->
+  <div class="flex-1 overflow-y-auto px-5 py-5 sm:px-6 sm:py-6 space-y-4 text-text-parchment">
+    <div class="p-3.5 rounded-lg bg-[#18110a] border border-mtg-gold/25 text-xs text-text-parchment-muted leading-relaxed font-serif-body">
+      Verify the physical table state and card interactions before approving. Confirming a match slip increments player trials and awards domain control at the threshold.
+    </div>
+
+    <!-- Empty State -->
+    <div id="arbitrator-empty-state" class="py-16 text-center space-y-3">
+      <div class="inline-flex p-3.5 rounded-full bg-[#18110a] border border-mtg-gold/30 text-mtg-gold shadow-md">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+      </div>
+      <h3 class="font-serif-title text-sm font-bold uppercase tracking-wider text-mtg-gold">
+        All Match Slips Verified
+      </h3>
+      <p class="font-serif-body italic text-xs text-text-parchment-muted max-w-[280px] mx-auto leading-relaxed">
+        When players finish MTG matches and submit claims from their pods, they will appear in this ledger.
+      </p>
+    </div>
+
+    <!-- Dynamic Claims Container -->
+    <div id="arbitrator-claims-list" class="space-y-4">
+      <!-- Injected by client script as physical Match Slips -->
+    </div>
+  </div>
+
+  <!-- Sticky Bottom Bar for Mobile -->
+  <div class="sm:hidden p-3 border-t border-[#c9a84c]/30 bg-[#140f0a]/95 backdrop-blur-md sticky bottom-0 z-20 flex gap-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] shadow-[0_-4px_16px_rgba(0,0,0,0.8)]">
+    <button
+      id="mobile-close-arbitrator-bottom-btn"
+      type="button"
+      class="flex-1 min-h-[44px] py-2.5 px-4 rounded bg-[#1c160e] hover:bg-[#251d13] border border-[#c72d07]/50 text-[#ff7e70] font-serif-title text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer active:scale-[0.98]"
+    >
+      <svg class="w-4 h-4 text-[#c72d07]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      <span>Back to Map</span>
+    </button>
+  </div>
+</aside>

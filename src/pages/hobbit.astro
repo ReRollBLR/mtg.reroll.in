@@ -1,0 +1,368 @@
+---
+// src/pages/hobbit.astro
+import '../styles/global.css';
+import RegionDrawer from '../components/hobbit/RegionDrawer.astro';
+import ArbitratorPanel from '../components/hobbit/ArbitratorPanel.astro';
+import LeaderboardModal from '../components/hobbit/LeaderboardModal.astro';
+import StarterRealmModal from '../components/hobbit/StarterRealmModal.astro';
+---
+
+<!doctype html>
+<html lang="en" class="h-full bg-[#0e0c0a] text-[#e8dcc8]">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <title>Middle-Earth Campaign Map | Magic: The Gathering</title>
+    <meta
+      name="description"
+      content="Interactive Middle-Earth Magic: The Gathering conquest map. Fulfill tabletop trials to claim territory across the realm."
+    />
+
+    <!-- Leaflet Styles -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+
+    <!-- Fonts: Cinzel & EB Garamond (Authentic MTG pair, no generic sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* Text selection themed to MTG gold & ink */
+      ::selection {
+        background-color: #c9a84c;
+        color: #0e0c0a;
+      }
+
+      /* Custom Leaflet Zoom Controls — Themed to MTG Card Edge */
+      .leaflet-control-zoom {
+        border: 1px solid rgba(201, 168, 76, 0.4) !important;
+        border-radius: 6px !important;
+        overflow: hidden !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8) !important;
+        margin-top: 16px !important;
+        margin-left: 16px !important;
+      }
+      .leaflet-control-zoom a {
+        background-color: #14100b !important;
+        color: #c9a84c !important;
+        border-color: rgba(201, 168, 76, 0.3) !important;
+        width: 34px !important;
+        height: 34px !important;
+        line-height: 34px !important;
+        font-family: 'Cinzel', serif !important;
+        font-size: 16px !important;
+        transition: background-color 0.2s ease, color 0.2s ease !important;
+      }
+      .leaflet-control-zoom a:hover {
+        background-color: #251d13 !important;
+        color: #e6cf86 !important;
+      }
+
+      /* Custom Tooltip styling for Leaflet */
+      .leaflet-tooltip.mtg-map-tooltip {
+        background-color: #14100b !important;
+        border: 1px solid #c9a84c !important;
+        border-radius: 6px !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.9) !important;
+        padding: 6px 12px !important;
+        color: #e8dcc8 !important;
+      }
+      .leaflet-tooltip.mtg-map-tooltip::before {
+        border-top-color: #c9a84c !important;
+      }
+
+      .leaflet-container {
+        background-color: #0e0c0a !important;
+        font-family: inherit !important;
+      }
+
+      /* Hardware acceleration for map image texture */
+      .leaflet-image-layer {
+        will-change: transform;
+        transform: translateZ(0);
+        backface-visibility: hidden;
+      }
+
+      .leaflet-pane > svg {
+        will-change: transform;
+        transform: translateZ(0);
+        backface-visibility: hidden;
+      }
+
+      /* Isolate vector transitions so coordinate recalculations on zoom NEVER lag or jitter */
+      path.region-polygon-layer {
+        transition: fill-opacity 0.2s ease, stroke 0.2s ease, stroke-width 0.2s ease !important;
+        vector-effect: non-scaling-stroke;
+      }
+
+      /* Mobile touch optimization */
+      #middle-earth-map {
+        touch-action: pan-x pan-y pinch-zoom;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      /* Touch-friendly Leaflet zoom controls on mobile */
+      @media (max-width: 640px) {
+        .leaflet-control-zoom {
+          margin-top: 10px !important;
+          margin-left: 10px !important;
+        }
+        .leaflet-control-zoom a {
+          width: 42px !important;
+          height: 42px !important;
+          line-height: 42px !important;
+          font-size: 20px !important;
+        }
+      }
+
+      /* Hide scrollbars for horizontal chip carousels while maintaining momentum scrolling */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+
+      /* Custom themed scrollbars */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #14100b;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #8a6e2f;
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #c9a84c;
+      }
+
+      /* Subtle card border sheen */
+      .gold-bevel {
+        box-shadow: inset 0 1px 0 rgba(230, 207, 134, 0.25), 0 4px 12px rgba(0, 0, 0, 0.6);
+      }
+    </style>
+  </head>
+
+  <body class="h-full flex flex-col overflow-hidden bg-[#0e0c0a] font-serif">
+    <!-- Mana Bar Seam -->
+    <div class="mana-bar"></div>
+
+    <!-- Top Masthead Bar -->
+    <header class="relative z-30 flex items-center justify-between px-4 md:px-6 py-3 bg-[#14100b]/95 border-b border-[#c9a84c]/30 backdrop-blur-md shadow-lg">
+      <!-- Left: Back link & Title -->
+      <div class="flex items-center gap-4 md:gap-6">
+        <a
+          href="/"
+          class="group inline-flex items-center gap-2 min-h-[44px] text-xs uppercase tracking-[0.16em] font-semibold text-[#c9a84c] hover:text-[#e6cf86] transition-colors"
+          aria-label="Return to Main Hub"
+        >
+          <svg class="w-3.5 h-3.5 stroke-current transition-transform duration-300 group-hover:-translate-x-1" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span class="hidden sm:inline font-['Cinzel',serif]">Home</span>
+        </a>
+
+        <div class="h-4 w-px bg-[#c9a84c]/30 hidden sm:block"></div>
+
+        <div class="flex items-center gap-2.5">
+          <span class="text-[#c9a84c] text-xs">✦</span>
+          <h1 class="text-sm sm:text-base font-bold uppercase tracking-[0.18em] text-[#f3ecd8] font-['Cinzel',serif]">
+            Middle-Earth <span class="text-[#c9a84c] hidden md:inline">Campaign</span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- Right: Actions & Profile -->
+      <div class="flex items-center gap-2.5 md:gap-3">
+        <!-- Standings / Leaderboard Button -->
+        <button
+          id="open-leaderboard-btn"
+          type="button"
+          class="gold-bevel inline-flex items-center gap-2 min-h-[44px] px-3.5 py-2 rounded bg-[#1c160e] hover:bg-[#251d13] border border-[#c9a84c]/50 hover:border-[#c9a84c] text-xs font-bold text-[#e8dcc8] uppercase tracking-wider font-['Cinzel',serif] transition-all cursor-pointer"
+        >
+          <!-- Authored Trophy SVG -->
+          <svg class="w-4 h-4 text-[#c9a84c]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+            <path d="M4 22h16"></path>
+            <path d="M10 14.66V17c0 .55-.45 1-1 1H8v4h8v-4h-1c-.55 0-1-.45-1-1v-2.34"></path>
+            <path d="M6 2h12v7a6 6 0 0 1-12 0V2z"></path>
+          </svg>
+          <span class="hidden sm:inline">Standings</span>
+        </button>
+
+        <!-- Arbitrator Council Toggle Button (conditionally shown for judges) -->
+        <button
+          id="open-arbitrator-btn"
+          type="button"
+          class="gold-bevel hidden relative inline-flex items-center gap-2 min-h-[44px] px-3.5 py-2 rounded bg-[#1c160e] hover:bg-[#251d13] border border-[#c72d07]/60 hover:border-[#c72d07] text-xs font-bold text-[#ff7e70] uppercase tracking-wider font-['Cinzel',serif] transition-all cursor-pointer"
+        >
+          <!-- Authored Scales of Justice SVG -->
+          <svg class="w-4 h-4 text-[#c72d07]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+            <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+            <path d="M7 21h10"></path>
+            <path d="M12 3v18"></path>
+            <path d="M3 7h18"></path>
+          </svg>
+          <span class="hidden md:inline">Arbitrator Council</span>
+          <span
+            id="header-arbitrator-badge"
+            class="hidden px-2 py-0.5 rounded-full bg-[#c72d07] text-white text-[10px] font-bold font-sans animate-pulse"
+          >
+            0
+          </span>
+        </button>
+
+        <!-- Auth Action / Profile Container -->
+        <div class="flex items-center">
+          <!-- Sign-in Button -->
+          <button
+            id="auth-action-btn"
+            type="button"
+            class="gold-bevel inline-flex items-center gap-1.5 min-h-[44px] px-3 sm:px-4 py-2 rounded bg-[#5865F2] hover:bg-[#4752C4] text-white text-xs font-bold uppercase tracking-wider font-['Cinzel',serif] transition-all cursor-pointer shrink-0"
+          >
+            <svg class="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
+              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+            </svg>
+            <span class="hidden sm:inline">Discord</span>
+          </button>
+
+          <!-- Logged-in Profile Pill -->
+          <div id="user-profile-display" class="hidden flex items-center gap-2.5 pl-2">
+            <img
+              id="user-avatar-img"
+              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100"
+              class="w-8 h-8 rounded-full border border-[#c9a84c] object-cover"
+              alt="Commander Avatar"
+            />
+            <div class="hidden sm:block text-left leading-tight">
+              <div id="user-username" class="text-xs font-bold text-[#f3ecd8] font-['Cinzel',serif]">Commander</div>
+              <span id="user-role-badge" class="text-[9px] uppercase tracking-wider px-1.5 py-0.2 rounded font-semibold font-['Cinzel',serif]">
+                Player
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Map Viewport -->
+    <main class="relative flex-1 w-full h-full">
+      <div id="middle-earth-map" class="w-full h-full z-10"></div>
+
+      <!-- Bottom Control Bar (Mobile-first responsive dock) -->
+      <div class="absolute bottom-3 left-3 right-3 sm:bottom-5 sm:left-5 sm:right-auto z-20 flex items-center gap-2 pb-[env(safe-area-inset-bottom,0px)]">
+        <!-- Floating Dock Shell -->
+        <div class="flex-1 sm:flex-initial flex items-center gap-2 p-1.5 sm:p-2 rounded-2xl sm:rounded-xl bg-[#14100b]/95 border border-[#c9a84c]/40 backdrop-blur-md shadow-2xl overflow-hidden max-w-full">
+          
+          <!-- Recenter Compass / Continental Overview Button -->
+          <button
+            id="btn-recenter-map"
+            type="button"
+            class="min-w-[44px] min-h-[44px] px-2.5 rounded-xl bg-[#1c160e] hover:bg-[#251d13] border border-[#c9a84c]/40 hover:border-[#c9a84c] text-[#c9a84c] flex items-center justify-center gap-1.5 shadow-md cursor-pointer shrink-0 active:scale-95 transition-all"
+            title="Overview of Middle-Earth"
+            aria-label="Recenter map overview"
+          >
+            <svg class="w-4 h-4 stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+            </svg>
+            <span class="hidden md:inline font-['Cinzel',serif] text-[11px] font-bold uppercase tracking-wider">Overview</span>
+          </button>
+
+          <div class="h-6 w-px bg-[#c9a84c]/30 shrink-0"></div>
+
+          <!-- Horizontal Realm Chips Scroll Area (Scrollable by thumb on mobile) -->
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 px-0.5 scroll-smooth snap-x">
+            <button type="button" data-jump="shire" class="jump-realm-btn snap-start shrink-0 inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs font-['Cinzel',serif] font-bold text-[#e8dcc8] hover:text-[#c9a84c] active:scale-95 bg-[#1c160e] hover:bg-[#251d13] border border-[#c9a84c]/20 hover:border-[#c9a84c]/60 rounded-lg transition-all cursor-pointer">
+              <span class="w-2 h-2 rounded-full bg-[#2f7d4f] inline-block shadow-sm"></span>
+              <span>Shire</span>
+            </button>
+            <button type="button" data-jump="bree" class="jump-realm-btn snap-start shrink-0 inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs font-['Cinzel',serif] font-bold text-[#e8dcc8] hover:text-[#c9a84c] active:scale-95 bg-[#1c160e] hover:bg-[#251d13] border border-[#c9a84c]/20 hover:border-[#c9a84c]/60 rounded-lg transition-all cursor-pointer">
+              <span class="w-2 h-2 rounded-full bg-[#c9a84c] inline-block shadow-sm"></span>
+              <span>Bree</span>
+            </button>
+            <button type="button" data-jump="rivendell" class="jump-realm-btn snap-start shrink-0 inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs font-['Cinzel',serif] font-bold text-[#e8dcc8] hover:text-[#c9a84c] active:scale-95 bg-[#1c160e] hover:bg-[#251d13] border border-[#c9a84c]/20 hover:border-[#c9a84c]/60 rounded-lg transition-all cursor-pointer">
+              <span class="w-2 h-2 rounded-full bg-[#2a6db0] inline-block shadow-sm"></span>
+              <span>Rivendell</span>
+            </button>
+            <button type="button" data-jump="moria" class="jump-realm-btn snap-start shrink-0 inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs font-['Cinzel',serif] font-bold text-[#e8dcc8] hover:text-[#c9a84c] active:scale-95 bg-[#1c160e] hover:bg-[#251d13] border border-[#c9a84c]/20 hover:border-[#c9a84c]/60 rounded-lg transition-all cursor-pointer">
+              <span class="w-2 h-2 rounded-full bg-[#8a7350] inline-block shadow-sm"></span>
+              <span>Moria</span>
+            </button>
+            <button type="button" data-jump="lothlorien" class="jump-realm-btn snap-start shrink-0 inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs font-['Cinzel',serif] font-bold text-[#e8dcc8] hover:text-[#c9a84c] active:scale-95 bg-[#1c160e] hover:bg-[#251d13] border border-[#c9a84c]/20 hover:border-[#c9a84c]/60 rounded-lg transition-all cursor-pointer">
+              <span class="w-2 h-2 rounded-full bg-[#baa14e] inline-block shadow-sm"></span>
+              <span>Lothlórien</span>
+            </button>
+            <button type="button" data-jump="isengard" class="jump-realm-btn snap-start shrink-0 inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs font-['Cinzel',serif] font-bold text-[#e8dcc8] hover:text-[#c9a84c] active:scale-95 bg-[#1c160e] hover:bg-[#251d13] border border-[#c9a84c]/20 hover:border-[#c9a84c]/60 rounded-lg transition-all cursor-pointer">
+              <span class="w-2 h-2 rounded-full bg-[#665c54] inline-block shadow-sm"></span>
+              <span>Isengard</span>
+            </button>
+            <button type="button" data-jump="fangorn" class="jump-realm-btn snap-start shrink-0 inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs font-['Cinzel',serif] font-bold text-[#e8dcc8] hover:text-[#c9a84c] active:scale-95 bg-[#1c160e] hover:bg-[#251d13] border border-[#c9a84c]/20 hover:border-[#c9a84c]/60 rounded-lg transition-all cursor-pointer">
+              <span class="w-2 h-2 rounded-full bg-[#1e5c36] inline-block shadow-sm"></span>
+              <span>Fangorn</span>
+            </button>
+            <button type="button" data-jump="rohan" class="jump-realm-btn snap-start shrink-0 inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs font-['Cinzel',serif] font-bold text-[#e8dcc8] hover:text-[#c9a84c] active:scale-95 bg-[#1c160e] hover:bg-[#251d13] border border-[#c9a84c]/20 hover:border-[#c9a84c]/60 rounded-lg transition-all cursor-pointer">
+              <span class="w-2 h-2 rounded-full bg-[#c72d07] inline-block shadow-sm"></span>
+              <span>Rohan</span>
+            </button>
+            <button type="button" data-jump="gondor" class="jump-realm-btn snap-start shrink-0 inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs font-['Cinzel',serif] font-bold text-[#e8dcc8] hover:text-[#c9a84c] active:scale-95 bg-[#1c160e] hover:bg-[#251d13] border border-[#c9a84c]/20 hover:border-[#c9a84c]/60 rounded-lg transition-all cursor-pointer">
+              <span class="w-2 h-2 rounded-full bg-[#f3ecd8] inline-block shadow-sm"></span>
+              <span>Gondor</span>
+            </button>
+            <button type="button" data-jump="mordor" class="jump-realm-btn snap-start shrink-0 inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs font-['Cinzel',serif] font-bold text-[#e8dcc8] hover:text-[#c9a84c] active:scale-95 bg-[#1c160e] hover:bg-[#251d13] border border-[#c9a84c]/20 hover:border-[#c9a84c]/60 rounded-lg transition-all cursor-pointer">
+              <span class="w-2 h-2 rounded-full bg-[#991f1f] inline-block shadow-sm"></span>
+              <span>Mordor</span>
+            </button>
+            <button type="button" data-jump="erebor" class="jump-realm-btn snap-start shrink-0 inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs font-['Cinzel',serif] font-bold text-[#e8dcc8] hover:text-[#c9a84c] active:scale-95 bg-[#1c160e] hover:bg-[#251d13] border border-[#c9a84c]/20 hover:border-[#c9a84c]/60 rounded-lg transition-all cursor-pointer">
+              <span class="w-2 h-2 rounded-full bg-[#d4a73b] inline-block shadow-sm"></span>
+              <span>Erebor</span>
+            </button>
+            <button type="button" data-jump="mirkwood" class="jump-realm-btn snap-start shrink-0 inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] text-xs font-['Cinzel',serif] font-bold text-[#e8dcc8] hover:text-[#c9a84c] active:scale-95 bg-[#1c160e] hover:bg-[#251d13] border border-[#c9a84c]/20 hover:border-[#c9a84c]/60 rounded-lg transition-all cursor-pointer">
+              <span class="w-2 h-2 rounded-full bg-[#2a5944] inline-block shadow-sm"></span>
+              <span>Mirkwood</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Global Drawer Scrim Backdrop -->
+    <div
+      id="hobbit-drawer-backdrop"
+      class="fixed inset-0 z-40 bg-black/60 backdrop-blur-[2px] hidden transition-opacity duration-300 cursor-pointer"
+      aria-hidden="true"
+    ></div>
+
+    <!-- Slide-over Panels and Modals -->
+    <RegionDrawer />
+    <ArbitratorPanel />
+    <LeaderboardModal />
+    <StarterRealmModal />
+
+    <!-- Client Script to boot up map and events -->
+    <script>
+      import { initHobbitApp } from '../scripts/hobbit-app';
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => initHobbitApp());
+      } else {
+        initHobbitApp();
+      }
+    </script>
+  </body>
+</html>

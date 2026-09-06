@@ -1,0 +1,153 @@
+---
+// src/components/hobbit/StarterRealmModal.astro
+---
+
+<div
+  id="starter-realm-modal"
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 backdrop-blur-md p-4 font-serif"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="starter-realm-title"
+>
+  <div class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-[#120d09] border border-mtg-gold/60 rounded-xl shadow-2xl shadow-black p-5 sm:p-8 flex flex-col text-[#e8dcc8] text-center space-y-5 sm:space-y-6">
+    <button
+      id="close-starter-realm-btn"
+      type="button"
+      class="absolute top-4 right-4 min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-text-parchment-muted hover:text-mtg-gold transition-colors cursor-pointer rounded border border-transparent hover:border-mtg-gold/40 hover:bg-[#251d13]"
+      aria-label="Close starter modal"
+    >
+      <svg class="w-4 h-4 stroke-current" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    <div>
+      <h2 id="starter-realm-title" class="text-xl sm:text-2xl font-bold uppercase tracking-[0.16em] text-[#f3ecd8] font-serif-title pr-8 sm:pr-0">
+        Choose Your Starting Domain
+      </h2>
+      <p class="font-serif-body italic text-xs text-text-parchment-muted mt-2 max-w-md mx-auto leading-relaxed">
+        Every Commander begins their campaign from one of three historical crossroads in Middle-Earth. Select your realm of origin.
+      </p>
+    </div>
+
+    <!-- 3 Starter Options as Physical MTG Land Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 text-left">
+      <!-- 1. The Shire -->
+      <button
+        type="button"
+        data-starter-id="shire"
+        class="starter-pick-btn group mtg-card p-1 text-left cursor-pointer transition-transform hover:-translate-y-1"
+        style="--card-grad: linear-gradient(150deg, #3d9a64, #2f7d4f 48%, #1b4b2e 82%, #0d2818);"
+      >
+        <div class="mtg-card__frame p-2 space-y-2">
+          <!-- Title Plate -->
+          <div class="mtg-card__plate px-2.5 py-1.5 flex items-center justify-between">
+            <span class="font-serif-title font-bold text-xs text-[#f3ecd8] group-hover:text-mtg-gold transition-colors">
+              The Shire
+            </span>
+            <span class="mana-pip w-4 h-4 rounded-full" style="--disc:#9ad2ad;"></span>
+          </div>
+
+          <!-- Art Window -->
+          <div class="mtg-card__art aspect-[16/9] overflow-hidden rounded">
+            <img
+              src="/images/territories/shire.webp"
+              alt="The Shire Cartography"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          </div>
+
+          <!-- Text Box -->
+          <div class="mtg-card__plate p-2.5 space-y-1.5 flex-1 flex flex-col justify-between">
+            <p class="font-serif-body text-xs text-text-parchment leading-snug">
+              Peaceful hobbit holes, life gain, food tokens, and quiet fortitude.
+            </p>
+            <div class="pt-2 text-center">
+              <span class="inline-block w-full py-1.5 px-2 rounded bg-[#2f7d4f]/30 border border-[#2f7d4f] font-serif-title text-[10px] font-bold uppercase tracking-wider text-[#8ade9c] group-hover:bg-[#2f7d4f] group-hover:text-white transition-colors">
+                Claim Origin →
+              </span>
+            </div>
+          </div>
+        </div>
+      </button>
+
+      <!-- 2. Bree -->
+      <button
+        type="button"
+        data-starter-id="bree"
+        class="starter-pick-btn group mtg-card p-1 text-left cursor-pointer transition-transform hover:-translate-y-1"
+        style="--card-grad: linear-gradient(150deg, #e6cf86, #c9a84c 48%, #8a6e2f 82%, #423211);"
+      >
+        <div class="mtg-card__frame p-2 space-y-2">
+          <!-- Title Plate -->
+          <div class="mtg-card__plate px-2.5 py-1.5 flex items-center justify-between">
+            <span class="font-serif-title font-bold text-xs text-[#f3ecd8] group-hover:text-mtg-gold transition-colors">
+              Bree-land
+            </span>
+            <span class="mana-pip w-4 h-4 rounded-full" style="--disc:#e6cf86;"></span>
+          </div>
+
+          <!-- Art Window -->
+          <div class="mtg-card__art aspect-[16/9] overflow-hidden rounded">
+            <img
+              src="/images/territories/bree.webp"
+              alt="Bree-land Cartography"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          </div>
+
+          <!-- Text Box -->
+          <div class="mtg-card__plate p-2.5 space-y-1.5 flex-1 flex flex-col justify-between">
+            <p class="font-serif-body text-xs text-text-parchment leading-snug">
+              The Prancing Pony hearth, Rangers of the North, and multi-color alliances.
+            </p>
+            <div class="pt-2 text-center">
+              <span class="inline-block w-full py-1.5 px-2 rounded bg-[#8a6e2f]/30 border border-mtg-gold font-serif-title text-[10px] font-bold uppercase tracking-wider text-[#e6cf86] group-hover:bg-mtg-gold group-hover:text-[#120d09] transition-colors">
+                Claim Origin →
+              </span>
+            </div>
+          </div>
+        </div>
+      </button>
+
+      <!-- 3. Gondor -->
+      <button
+        type="button"
+        data-starter-id="gondor"
+        class="starter-pick-btn group mtg-card p-1 text-left cursor-pointer transition-transform hover:-translate-y-1"
+        style="--card-grad: linear-gradient(150deg, #f7f3df, #dcd4b8 48%, #a89a74 82%, #5e543b);"
+      >
+        <div class="mtg-card__frame p-2 space-y-2">
+          <!-- Title Plate -->
+          <div class="mtg-card__plate px-2.5 py-1.5 flex items-center justify-between">
+            <span class="font-serif-title font-bold text-xs text-[#f3ecd8] group-hover:text-mtg-gold transition-colors">
+              Realm of Gondor
+            </span>
+            <span class="mana-pip w-4 h-4 rounded-full" style="--disc:#f7f3df;"></span>
+          </div>
+
+          <!-- Art Window -->
+          <div class="mtg-card__art aspect-[16/9] overflow-hidden rounded">
+            <img
+              src="/images/territories/gondor.webp"
+              alt="Gondor Cartography"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          </div>
+
+          <!-- Text Box -->
+          <div class="mtg-card__plate p-2.5 space-y-1.5 flex-1 flex flex-col justify-between">
+            <p class="font-serif-body text-xs text-text-parchment leading-snug">
+              The White City of Kings, legendary commanders, defenders, and royal glory.
+            </p>
+            <div class="pt-2 text-center">
+              <span class="inline-block w-full py-1.5 px-2 rounded bg-[#dcd4b8]/20 border border-[#dcd4b8] font-serif-title text-[10px] font-bold uppercase tracking-wider text-[#f3ecd8] group-hover:bg-[#f3ecd8] group-hover:text-[#120d09] transition-colors">
+                Claim Origin →
+              </span>
+            </div>
+          </div>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
