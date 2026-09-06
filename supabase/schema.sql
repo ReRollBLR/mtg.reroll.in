@@ -66,21 +66,25 @@ create table if not exists public.activity_feed (
 
 -- ─── AUTOMATIC PROFILE POPULATION VIA DISCORD AUTH ───────────────────────────
 create or replace function public.handle_new_user()
-returns trigger as $$
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
 declare
   raw_meta jsonb;
   discord_name text;
   discord_avatar text;
 begin
-  raw_meta := new.raw_user_meta_data;
+  raw_meta := coalesce(new.raw_user_meta_data, '{}'::jsonb);
   discord_name := coalesce(
-    raw_meta->>'custom_claims'->>'global_name',
-    raw_meta->>'full_name',
-    raw_meta->>'name',
-    split_part(new.email, '@', 1),
+    nullif(raw_meta->>'custom_claims'->>'global_name', ''),
+    nullif(raw_meta->>'full_name', ''),
+    nullif(raw_meta->>'name', ''),
+    nullif(raw_meta->>'user_name', ''),
+    nullif(split_part(new.email, '@', 1), ''),
     'Commander'
   );
-  discord_avatar := coalesce(raw_meta->>'avatar_url', null);
+  discord_avatar := raw_meta->>'avatar_url';
 
   insert into public.profiles (id, discord_id, username, avatar_url, role)
   values (
@@ -92,11 +96,16 @@ begin
   )
   on conflict (id) do update set
     username = excluded.username,
-    avatar_url = excluded.avatar_url;
+    avatar_url = coalesce(excluded.avatar_url, public.profiles.avatar_url);
 
   return new;
+exception
+  when others then
+    -- Never abort auth.users creation on profile hook failure
+    raise warning 'handle_new_user trigger warning: %', SQLERRM;
+    return new;
 end;
-$$ language plpgsql security definer;
+$$;
 
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
@@ -118,6 +127,9 @@ create policy "Public can read claims" on public.claims for select using (true);
 create policy "Public can read activity feed" on public.activity_feed for select using (true);
 
 -- Authenticated user permissions
+create policy "Enable insert for profiles" on public.profiles
+  for insert with check (true);
+
 create policy "Users can update own profile" on public.profiles
   for update using (auth.uid() = id);
 
