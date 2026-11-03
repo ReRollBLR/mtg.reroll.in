@@ -2,7 +2,6 @@
 import "../styles/global.css";
 import AnnouncementBanner from "../components/AnnouncementBanner.astro";
 import { announcement } from "../config/announcement";
-import { links } from "../config/site";
 
 interface Props {
   title?: string;
@@ -197,36 +196,29 @@ const pageTitle =
       <div class="ornament-corner ornament-bl"></div>
       <div class="ornament-corner ornament-br"></div>
 
-      <!-- the threshold: back to the reroll superhome -->
-      <a
-        href={links.reroll}
-        class="group self-start inline-flex items-center gap-2 font-sans-ui text-[0.7rem] uppercase tracking-[0.18em] font-bold text-brand-red-light hover:text-brand-red transition-colors mb-4 ml-[6%] md:ml-[10%]"
-      >
-        <span class="inline-block transition-transform duration-300 group-hover:-translate-x-1">←</span>
-        Back to ReRoll
-      </a>
-
       <div
         id="main-board-container"
         class="w-full max-w-6xl text-text-ink p-2 md:p-6 relative"
       >
-        <header class="flex flex-col items-center justify-center mb-8 md:mb-12 border-b border-brand-red/20 pb-8 text-center">
-          {showHeading && (
-            <a href="/" class="group flex flex-col items-center">
-              <h1
-                id="site-title"
-                class="font-serif-title title-glow uppercase font-bold tracking-[0.12em] text-3xl md:text-5xl leading-tight transition-transform duration-300 group-hover:scale-[1.02]"
-              >
-                Magic: The Gathering<br /><span class="text-xl md:text-3xl tracking-[0.2em]">Bangalore</span>
-              </h1>
-            </a>
-          )}
-          {tagline && (
-            <p class="font-serif-body text-sm md:text-base italic text-text-ink-muted mt-4 max-w-xl leading-relaxed">
-              {tagline}
-            </p>
-          )}
-        </header>
+        {(showHeading || tagline) && (
+          <header class="flex flex-col items-center justify-center mb-8 md:mb-12 border-b border-brand-red/20 pb-8 text-center">
+            {showHeading && (
+              <a href="/" class="group flex flex-col items-center">
+                <h1
+                  id="site-title"
+                  class="font-serif-title title-glow uppercase font-bold tracking-[0.12em] text-3xl md:text-5xl leading-tight transition-transform duration-300 group-hover:scale-[1.02]"
+                >
+                  Magic: The Gathering<br /><span class="text-xl md:text-3xl tracking-[0.2em]">Bangalore</span>
+                </h1>
+              </a>
+            )}
+            {tagline && (
+              <p class="font-serif-body text-sm md:text-base italic text-text-ink-muted mt-4 max-w-xl leading-relaxed">
+                {tagline}
+              </p>
+            )}
+          </header>
+        )}
 
         <main><slot /></main>
 
