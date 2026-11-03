@@ -20,6 +20,9 @@ interface Props {
 
 const { text, ctaText, ctaHref } = Astro.props;
 const hasCta = Boolean(ctaText && ctaHref);
+const isExternal = Boolean(ctaHref && /^https?:\/\//.test(ctaHref));
+const targetAttr = isExternal ? "_blank" : undefined;
+const relAttr = isExternal ? "noopener" : undefined;
 ---
 
 <div class="ann-banner" role="region" aria-label="Site announcement">
@@ -27,7 +30,7 @@ const hasCta = Boolean(ctaText && ctaHref);
   <p class="sr-only">
     {text}
     {hasCta && (
-      <a href={ctaHref} target="_blank" rel="noopener">{ctaText}</a>
+      <a href={ctaHref} target={targetAttr} rel={relAttr}>{ctaText}</a>
     )}
   </p>
 
@@ -38,7 +41,7 @@ const hasCta = Boolean(ctaText && ctaHref);
         <span class="ann-marquee__item">
           <button type="button" class="ann-marquee__text ann-text-btn" data-ann-open tabindex="-1">{text}</button>
           {hasCta && (
-            <a class="ann-marquee__cta" href={ctaHref} target="_blank" rel="noopener" tabindex="-1">
+            <a class="ann-marquee__cta" href={ctaHref} target={targetAttr} rel={relAttr} tabindex="-1">
               {ctaText}
               <span class="ann-arrow" aria-hidden="true">→</span>
             </a>
@@ -53,7 +56,7 @@ const hasCta = Boolean(ctaText && ctaHref);
   <div class="ann-static" aria-hidden="true">
     <button type="button" class="ann-static__text ann-text-btn" data-ann-open>{text}</button>
     {hasCta && (
-      <a class="ann-static__cta" href={ctaHref} target="_blank" rel="noopener">
+      <a class="ann-static__cta" href={ctaHref} target={targetAttr} rel={relAttr}>
         {ctaText}
         <span class="ann-arrow" aria-hidden="true">→</span>
       </a>
@@ -66,7 +69,7 @@ const hasCta = Boolean(ctaText && ctaHref);
   <p class="ann-dialog__text">{text}</p>
   <div class="ann-dialog__actions">
     {hasCta && (
-      <a class="ann-dialog__cta" href={ctaHref} target="_blank" rel="noopener">
+      <a class="ann-dialog__cta" href={ctaHref} target={targetAttr} rel={relAttr}>
         {ctaText}
       </a>
     )}

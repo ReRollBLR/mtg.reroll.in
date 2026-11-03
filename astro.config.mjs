@@ -15,5 +15,7 @@ export default defineConfig({
     // '/chat': 'https://discord.gg/XXXX',
     '/tix': 'https://www.district.in/events/magic-the-gathering-with-reroll-board-games-buy-tickets',
     '/whatsapp': 'https://reroll.in/whatsapp-mtg',
+    '/bangalore-card-show': '/bcs',
+    '/tournament': '/bcs',
   },
 });

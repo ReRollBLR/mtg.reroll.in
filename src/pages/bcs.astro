@@ -1,0 +1,65 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+/**
+ * /bcs — Bangalore Card Show Standard MTG Tournament Sign-up.
+ * Embedded Google Form allowing native authentication, response editing, and email receipts.
+ */
+const GOOGLE_FORM_EMBED_URL =
+  "https://docs.google.com/forms/d/e/1FAIpQLSfkSjcNPviJbWSImgfPfXmS7twKlh29Rb6Om2MHdCNZVt6PlA/viewform?embedded=true";
+const GOOGLE_FORM_DIRECT_URL =
+  "https://docs.google.com/forms/d/e/1FAIpQLSfkSjcNPviJbWSImgfPfXmS7twKlh29Rb6Om2MHdCNZVt6PlA/viewform";
+---
+
+<Layout
+  title="Bangalore Card Show Standard MTG Tournament"
+  seoTitle="Bangalore Card Show Standard MTG Tournament Sign Up | ReRoll MTG Bangalore"
+  description="Sign up for the Bangalore Card Show Magic: The Gathering tournament by submitting your details and deck details. First rounds 14th Nov (12 noon to 4 pm), finals 15th Nov."
+  showHeading={false}
+>
+  <section class="w-full max-w-2xl mx-auto">
+    <div class="mb-4">
+      <a
+        href="/"
+        class="inline-flex items-center gap-1.5 font-sans-ui text-xs uppercase tracking-[0.16em] font-bold text-brand-red hover:text-brand-red-dark transition-colors"
+      >
+        <span aria-hidden="true">←</span> Back to Home
+      </a>
+    </div>
+
+    <h2
+      class="font-serif-title title-glow text-center text-2xl md:text-3xl font-bold uppercase tracking-[0.14em] mb-3"
+    >
+      Bangalore Card Show
+    </h2>
+      <p class="text-center font-serif-body italic text-text-ink-muted mb-8">
+        Standard MTG Tournament · 14th &amp; 15th Nov · 12:00 noon to 4:00 PM
+      </p>
+
+      <!-- Embedded Google Form Container -->
+      <div
+        class="border border-brand-red/20 rounded-xl bg-white shadow-sm overflow-hidden"
+      >
+        <iframe
+          src={GOOGLE_FORM_EMBED_URL}
+          width="100%"
+          height="1400"
+          title="Bangalore Card Show Standard MTG Tournament Sign-up Form"
+          class="w-full min-h-[1400px] border-0 block"
+        >
+          Loading form…
+        </iframe>
+      </div>
+
+      <p class="font-sans-ui text-xs text-center text-text-ink-muted mt-4">
+        Having trouble viewing the form? <a
+          href={GOOGLE_FORM_DIRECT_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="underline hover:text-brand-red font-semibold"
+          >Open directly in Google Forms</a
+        >.
+      </p>
+    </p>
+  </section>
+</Layout>
