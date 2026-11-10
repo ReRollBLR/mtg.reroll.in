@@ -13,6 +13,7 @@ export default defineConfig({
     // Optional. Map short slugs → external URLs. Each becomes a static
     // redirect page at build. Example:
     // '/chat': 'https://discord.gg/XXXX',
+    '/': '/bcs',
     '/tix': 'https://www.district.in/events/magic-the-gathering-with-reroll-board-games-buy-tickets',
     '/whatsapp': 'https://reroll.in/whatsapp-mtg',
     '/bangalore-card-show': '/bcs',

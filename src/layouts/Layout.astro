@@ -10,6 +10,8 @@ interface Props {
   tagline?: string;
   /** Hides the "Magic: The Gathering / Bangalore" masthead heading + tagline. Defaults to shown. */
   showHeading?: boolean;
+  /** Hides the top site-wide announcement banner. Defaults to true. */
+  showAnnouncement?: boolean;
   image?: string;
   schema?: Record<string, any> | Array<Record<string, any>>;
 }
@@ -20,6 +22,7 @@ const {
   description = "Join Bangalore's Magic: The Gathering (MTG) community! Weekly Saturday meetups in Indiranagar, Bengaluru. Casual Commander (EDH), Jumpstart for beginners & deck trading with ReRoll Board Games.",
   tagline,
   showHeading = true,
+  showAnnouncement = true,
   image = "/images/og-image.jpg",
   schema,
 } = Astro.props;
@@ -179,7 +182,7 @@ const pageTitle =
     </noscript>
   </head>
   <body class="min-h-screen flex flex-col">
-    {announcement.enabled && (
+    {showAnnouncement && announcement.enabled && (
       <AnnouncementBanner
         text={announcement.text}
         ctaText={announcement.ctaText}
