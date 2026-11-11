@@ -16,6 +16,7 @@ export default defineConfig({
     '/': '/bcs',
     '/tix': 'https://www.district.in/events/magic-the-gathering-with-reroll-board-games-buy-tickets',
     '/whatsapp': 'https://reroll.in/whatsapp-mtg',
+    '/instagram': 'https://www.instagram.com/mtg_bangalore/',
     '/bangalore-card-show': '/bcs',
     '/tournament': '/bcs',
   },
